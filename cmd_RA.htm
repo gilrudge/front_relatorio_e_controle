@@ -1,0 +1,112 @@
+﻿<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Comandos</title>
+    <style>
+      textarea {resize: none;}
+      body,td,th {
+        font-family: Consolas, "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", Monaco, "Courier New", monospace;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <h2 align="center">Relatório de Acesso - Comandos</h2>
+    <br>
+    <div align="center">
+      Entre com o IP e Porta:
+      <input type="text" id="ip" value="192.168.10.150">
+      <!-- Mostra o Status do Módulo -->
+      <button onclick="status()" target="log" style="height:22px; width:220px">Status do Módulo</button>
+    </div>
+    <br><br>
+    <table border="0" align="center" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="500" align="left">
+          <button onclick="comando('NBC','NBC')" target="log" style="height:22px; width:220px">Nome do Banco</button> <input id="NBC" value="nome do banco" type="text" maxlength="30" size="30">
+          <br><br>
+          <button onclick="comando('NAG','NAG')" target="log" style="height:22px; width:220px">Nome da Agência</button> <input id="NAG" value="nome da agencia" type="text" maxlength="30" size="30">
+          <br><br>
+          <button onclick="comando('NUM','NUM')" target="log" style="height:22px; width:220px">Número da Agência</button> <input id="NUM" value="12345-6" type="text" maxlength="10" size="10">
+          <br><br>
+          <button onclick="comando('NIP','NIP')" target="log" style="height:22px; width:220px">Endereço de IP</button> <input id="NIP" value="192.168.10.150" type="text" maxlength="15" size="15">
+          <br><br>
+          <button onclick="comando('NPT','NPT')" target="log" style="height:22px; width:220px">Número da Porta do IP</button>
+          <input id="NPT" value="80" type="text" maxlength="5" size="5">
+          <br><br>
+          <button onclick="comando('MSK','MSK')" target="log" style="height:22px; width:220px">Máscara de Rede</button> <input id="MSK" value="255.255.255.0" type="text" maxlength="15" size="15">
+          <br><br>
+          <button onclick="comando('DNS','DNS')" target="log" style="height:22px; width:220px">Endereço DNS</button> <input id="DNS" value="8.8.8.8" type="text" maxlength="15" size="15">
+          <br><br>
+          <button onclick="comando('GTW','GTW')" target="log" style="height:22px; width:220px">Endereço de Gateway</button>
+          <input id="GTW" value="192.168.10.1" type="text" maxlength="15" size="15">
+          <br><br>
+          <button onclick="comando('COM','COM')" target="log" style="height:22px; width:220px">IP Fixo ou DHCP</button> <input id="COM" value="0" type="text" maxlength="1" size="1">( 0=Fixo | 1=DHCP )
+        </td>
+    
+        <td width="260" align="center">
+          <!-- Mostra Eventos -->
+          <button onclick="evento('MEV')" target="log" style="height:22px; width:220px">Mostra os Eventos</button> <input id="MEV" type="hidden">
+          <br><br>
+
+          <!-- Limpa Eventos -->
+          <button onclick="evento('LEV')" target="log" style="height:22px; width:220px" class="buttons">Limpa Todos os Eventos</button>
+          <input id="LEV" type="hidden"><br><br>
+            
+          <!-- Restaura Padrões de Fábrica -->
+          <button onclick="config('DFT')" target="log" style="height:22px; width:220px">Restaura Padrões de Fábrica</button>
+          <input id="DFT" type="hidden">
+        </td>
+        
+        <td width="300" align="center">
+          <div align="center">
+            <!-- Área do Status -->
+            <textarea  id="log" rows="25" cols="45" readonly></textarea>
+          </div>
+        </td>
+  
+      </tr>
+    </table>
+    <br><br>
+    <h2 align="center">Resposta dos Comandos</h2>
+  </body>
+  </html>
+
+<script>
+
+function status(){
+	var x = document.getElementById("ip").value;
+	parent.logg.location = "http://" + x + "/";
+	console.log("http://" + x + "/");}
+
+function comando(cmd,id){
+	var x = document.getElementById("ip").value;
+	var y = document.getElementById(id).value;
+	parent.logg.location = "http://" + x + "/comando?@" + cmd + ":" + y;
+	console.log("http://" + x + "/comando?@" + cmd + ":" + y);}
+
+function config(cfg){
+	var x = document.getElementById("ip").value;
+	var y = document.getElementById(cfg).value;
+	parent.logg.location = "http://" + x + "/config?@" + cfg;
+	console.log( "http://" + x + "/config?@" + cfg);}
+
+function evento(eve){
+	var x = document.getElementById("ip").value;
+	parent.logg.location = "http://" + x + "/eventos?@" + eve;
+	console.log( "http://" + x + "/eventos?@" + eve);}
+
+(function () {
+	var old = console.log;
+	var logger = document.getElementById('log');
+	console.log = function (message) {
+	logger.innerHTML += message;
+	logger.innerHTML += "&#13;&#10";
+	function loadLog(logValue) {logTa = document.getElementById("log");
+	logTa.value = logValue;scrollLogToBottom();}
+	function scrollLogToBottom() {logTa = document.getElementById("log");
+	logTa.scrollTop = logTa.scrollHeight;}loadLog(logger.innerHTML);}})();
+
+</script>
+
+
