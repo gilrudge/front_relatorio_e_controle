@@ -29,10 +29,20 @@ export default function UpdateBranch(props) {
         gateway: props.gateway,
         ipfixo_dhcp: props.ipFixoDhcp,
         mac_adress: props.macAdress
-      }
-      )
+      })
       window.location.reload()
+
+      // props.setBranchName(props.data.branch.nome_ag)
+      // props.setIpAdress(props.data.branch.end_ip)
+      // props.setPort(props.data.branch.porta)
+      // props.setNetworkMask(props.data.branch.masc_rede)
+      // props.setDnsAdress(props.data.branch.end_dns)
+      // props.setGateway(props.data.branch.gateway)
+      // props.setIpFixoDhcp(props.data.branch.ipfixo_dhcp)
+      // props.setMacAdress(props.data.branch.mac_adress)
+
       alert('Agência alterada com sucesso')
+      props.showReport()
       
     }
 
@@ -132,8 +142,7 @@ export default function UpdateBranch(props) {
               label="MAC Adress"
               value={props.data.branch.mac_adress}
               onChange={(e) => props.setMacAdress(e.target.value)}
-              
-            />
+          />
         </Box>
 
         <Box sx={{m: 2, display: 'flex', justifyContent:'end', gap: 2}}>

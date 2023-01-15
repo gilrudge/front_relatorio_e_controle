@@ -26,6 +26,7 @@ export default function BranchForm(props) {
     props.setIpFixoDhcp('');
     props.setBranchName('');
     props.setDnsAdress('');
+    props.setMacAdress('');
     props.setIpAdress('');
     props.setBankName('');
     props.setGateway('');
