@@ -6,45 +6,52 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { 
+  validateBankName, validateBranchNumber, validateBranchName,
+  validateIp, validatePort,  validateNetworkMask,
+  validateDnsAdress, validateGateway, validateIpFixoDhcp,
+  validateMacAdress
+        } from '../../../utils/validate';
 
 
 export default function UpdateBranch(props) {
 
-  // async function deleteBranch(_branchNumber){
-    //   await axios.delete(`http://localhost:4000/${_branchNumber}`)
-    //   // updateOptions()
-    //   window.location.reload()
-    //   alert('Agência excluída com sucesso')
-    // }
-    
-    async function alterBranch(_branchNumber){
-      await axios.put(`http://localhost:4000/${_branchNumber}`,
+    const {register, handleSubmit, formState:{errors}} = useForm({defaultValues:{
+      
+      nome_banco:props.data.branch.nome_banco,
+      numero_ag: props.data.branch.numero_ag,
+      nome_ag: props.data.branch.nome_ag,
+      end_ip:props.data.branch.end_ip,
+      porta: props.data.branch.porta,
+      masc_rede: props.data.branch.masc_rede,
+      end_dns: props.data.branch.end_dns,
+      gateway: props.data.branch.gateway,
+      ipfixo_dhcp: props.data.branch.ipfixo_dhcp,
+      mac_adress: props.data.branch.mac_adress
+
+    }});
+
+    const onSubmit = async (data) =>{      
+      
+      await axios.put(`http://localhost:4000/${data.numero_ag}`,
       {
-        nome_banco: props.bankName,
-        nome_ag: props.branchName,
-        end_ip: props.ipAdress,
-        porta: props.port,
-        masc_rede: props.networkMask,
-        end_dns: props.dnsAdress,
-        gateway: props.gateway,
-        ipfixo_dhcp: props.ipFixoDhcp,
-        mac_adress: props.macAdress
+          nome_banco: data.nome_banco,          
+          numero_ag: data.numero_ag,          
+          nome_ag: data.nome_ag,         
+          end_ip: data.end_ip,          
+          porta: data.porta,         
+          masc_rede: data.masc_rede,         
+          end_dns: data.end_dns,          
+          gateway: data.gateway,          
+          ipfixo_dhcp: data.ipfixo_dhcp,          
+          mac_adress: data.mac_adress
       })
       window.location.reload()
+      alert('Agência alterada com sucesso')     
 
-      // props.setBranchName(props.data.branch.nome_ag)
-      // props.setIpAdress(props.data.branch.end_ip)
-      // props.setPort(props.data.branch.porta)
-      // props.setNetworkMask(props.data.branch.masc_rede)
-      // props.setDnsAdress(props.data.branch.end_dns)
-      // props.setGateway(props.data.branch.gateway)
-      // props.setIpFixoDhcp(props.data.branch.ipfixo_dhcp)
-      // props.setMacAdress(props.data.branch.mac_adress)
-
-      alert('Agência alterada com sucesso')
-      props.showReport()
-      
     }
+
 
     useEffect(()=> {
       props.updateOptions()
@@ -56,104 +63,182 @@ export default function UpdateBranch(props) {
     <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Title>Alterar Dados</Title>
       <Box
+        mt={3}
         component="form"
         sx={{
           '& .MuiTextField-root': { m: 1 , mb: 3, width: '23.3ch', height: '3ch'},
         }}
         noValidate
-        autoComplete="off"      
+        autoComplete="off"
+        onSubmit={handleSubmit(onSubmit)}      
       >
-        <Box>
+        <Box mb={3}>
         <TextField
               size="small"
               id="outlined"
               label="Nome do Banco"
-              value={props.data.branch.nome_banco}
               disabled
+              type="text"            
+            {...register("nome_banco", {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateBankName,
+                message: "Nome Inválido"}
+              })}
+            error={!!errors?.nome_banco}
+            helperText={errors?.nome_banco ? errors.nome_banco.message : null}
+            />        
+          <TextField
+            size="small"
+            id="outlined"
+            label="Número da Agência"            
+            disabled
+            type="text"            
+            {...register("numero_ag", {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateBranchNumber,
+                message: "Número agência inválido"}
+              })}
+            error={!!errors?.numero_ag}
+            helperText={errors?.numero_ag ? errors.numero_ag.message : null}            
+          />
+          <TextField
+            size="small"            
+            id="outlined"
+            label="Nome Agência"
+            autoComplete="Nome Agência"           
+            required
+            type="text"            
+            {...register("nome_ag", {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateBranchName,
+                message: "Nome agência inválido"}
+              })}
+            error={!!errors?.nome_ag}
+            helperText={errors?.nome_ag ? errors.nome_ag.message : null}
+          />          
+          <TextField
+            size="small"
+            id="outlined"
+            label='Endereço IP'
+            autoComplete='Endereço IP'            
+            required
+            type="text"            
+            {...register('end_ip', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateIp,
+                message: "IP Inválido"}
+              })}
+            error={!!errors?.end_ip}
+            helperText={errors?.end_ip ? errors.end_ip.message : null}
             />
-        
-          <TextField
-            size="small"
-            id="outlined"
-            label="Número da Agência"
-            value={props.data.branch.numero_ag}
-            disabled            
-          />
-          <TextField
-            size="small"
-            id="outlined"
-            label="Nome da Agência"            
-            defaultValue={props.data.branch.nome_ag}
-            onChange={(e) => props.setBranchName(e.target.value)}            
-          />
-          <TextField
-            size="small"
-            id="outlined"
-            label="Endereço de IP"
-            
-            defaultValue={props.data.branch.end_ip}
-            onChange={(e) => props.setIpAdress(e.target.value)}              
-          />
-          <TextField
-            size="small"
+            <TextField
+            size="small"            
             id="outlined"
             label="Porta"
-            
-            defaultValue={props.data.branch.porta}
-            onChange={(e) => props.setPort(e.target.value)}           
-          />
+            autoComplete='Porta'            
+            required
+            type="text"            
+            {...register('porta', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validatePort,
+                message: "Porta Inválida"}
+              })}
+            error={!!errors?.porta}
+            helperText={errors?.porta ? errors.porta.message : null}           
+          />          
         </Box>
-        <Box>
-          <TextField
+        <Box mb={3}>
+        <TextField
             size="small"
             id="outlined"
             label="Máscara de Rede"
-            
-            defaultValue={props.data.branch.masc_rede}
-            onChange={(e) => props.setNetworkMask(e.target.value)}            
+            autoComplete='Máscara_Rede'
+            required
+            type="text"
+            {...register('masc_rede', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateNetworkMask,
+                message: "Máscara de Rede Inválida"}
+              })}
+            error={!!errors?.masc_rede}
+            helperText={errors?.masc_rede ? errors.masc_rede.message : null}
           />
           <TextField
             size="small"
             id="outlined"
             label="Endereço DNS"
+            autoComplete='Endereço DNS'          
+            required
+            type="text"
+            {...register('end_dns', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateDnsAdress,
+                message: "DNS Inválido"}
+              })}
+            error={!!errors?.end_dns}
+            helperText={errors?.end_dns ? errors.end_dns.message : null}
+          />          
+          <TextField
+            size="small"
+            id="outlined"
+            label="Gateway"            
+            required
+            type="text"
+            {...register('gateway', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateGateway,
+                message: "Gateway Inválido"}
+              })}
+            error={!!errors?.gateway}
+            helperText={errors?.gateway ? errors.gateway.message : null}
+          />          
+          <TextField
+            size="small"
+            id="outlined"
+            label="IP Fixo / DHCP"            
+            autoComplete="IP Fixo / DHCP"            
             
-            defaultValue={props.data.branch.end_dns}
-            onChange={(e) => props.setDnsAdress(e.target.value)}            
+            required
+            type="text"
+            {...register("ipfixo_dhcp", {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateIpFixoDhcp,
+                message: "Valor Inválido"}
+              })}
+            error={!!errors?.ipfixo_dhcp}
+            helperText={errors?.ipfixo_dhcp ? errors.ipfixo_dhcp.message : null}
           />
           <TextField
             size="small"
             id="outlined"
-            label="Gateway"
-            
-            defaultValue={props.data.branch.gateway}
-            onChange={(e) => props.setGateway(e.target.value)}             
-          />
-          <TextField
-            size="small"
-            id="outlined"
-            label="IP Fixo / DHCP"         
-            defaultValue={props.data.branch.ipfixo_dhcp}
-            onChange={(e) => props.setIpFixoDhcp(e.target.value)}          
-          />
-          
-          <TextField
-              size="small"
-              id="outlined"
-              label="MAC Adress"
-              value={props.data.branch.mac_adress}
-              onChange={(e) => props.setMacAdress(e.target.value)}
-          />
+            label="MAC Adress"            
+            autoComplete="MAC Adress"            
+            required
+            type="text"
+            {...register('mac_adress', {
+              required:"Campo obrigatório",
+              pattern:{
+                value: validateMacAdress,
+                message: "Valor Inválido"}
+              })}
+            error={!!errors?.mac_adress}
+            helperText={errors?.mac_adress ? errors.mac_adress.message : null}
+          />          
         </Box>
-
-        <Box sx={{m: 2, display: 'flex', justifyContent:'end', gap: 2}}>
-          <Button variant="contained" onClick={()=>{alterBranch(props.data.branch.numero_ag), props.showReport(), props.showChanges()}}>Salvar Alterações</Button>
-          {/* <Button variant="contained" onClick={()=>{deleteBranch(props.data.branch.numero_ag)}}>Excluir Agência</Button> */}
-        </Box> 
-
-      </Box>
-      
-      
-      </Paper>
+        <Box sx={{m: 2, display: 'flex', justifyContent:'end', gap: 2}}>         
+          <Button variant="contained" type="submit">Salvar Alterações</Button>          
+        </Box>
+      </Box>      
+    </Paper>
     </>
   );
 }

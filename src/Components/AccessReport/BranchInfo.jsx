@@ -8,7 +8,7 @@ import Paper from '@mui/material/Paper';
 import axios from 'axios';
 import { useEffect } from 'react';
 import uuid from 'react-uuid';
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 
 
 
@@ -30,6 +30,14 @@ export default function BranchInfo(props) {
     automaticUpdate()    
 
     },[events]);
+
+
+    const getInfosBranchTest = async (branchNumber, chosenDate) => {
+      await axios.get(`http://localhost:4000/${branchNumber}/update/?date=${chosenDate}`)
+          .then((response) => {setEvents(response.data.relatorio)})
+          console.log('funcionando')        
+    }
+    
     
     
     useEffect (() => {
@@ -182,8 +190,12 @@ export default function BranchInfo(props) {
             />
           </Box>
           <Box sx={{ m: 2, display: 'flex', justifyContent: 'end', gap: 2 }}>
-            <Button variant="contained" onClick={ () => { props.showChanges(), props.showReport() }}>Editar Agência</Button>
-            <Button variant="contained" onClick={ ()=> { getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))} }>Atualizar Eventos</Button>
+            <Button
+              variant="contained"
+              onClick={ () => { props.showChanges(), props.showReport() }}
+              >
+              Editar Agência
+            </Button>            
             <Button variant="contained">
               <CSVLink
               data={csvData}
@@ -192,24 +204,19 @@ export default function BranchInfo(props) {
               style={{ textDecoration: 'none', color: '#FFF'}}             
               >Exportar Dados
               </CSVLink>
-            </Button> 
-                       
+            </Button>                       
           </Box>
-
         </Box>
         <Box sx={{ height: 450, width: '100%' }}>
           <Title>Relatório de Acesso</Title>
-
             <DataGrid
             id="relatorio_acesso"
             getRowId={(evento)=> evento?.id}
             rowHeight={30}
             rows={rowsReport}
             columns={columnsReport}
-            rowsPerPageOptions={[25, 50, 100]}
-            
+            rowsPerPageOptions={[25, 50, 100]}            
           />
-
         </Box>
       </Paper>
     </>

@@ -51,11 +51,7 @@ export default function AccessReport() {
     fetchOptions()
   }, [])
 
-  // useEffect(() => {
-  //   showReport()
-    
-  // }, [changes])
-
+  
   return (
     <>
       <Grid container spacing={3}>
@@ -129,6 +125,7 @@ export default function AccessReport() {
               ipAdress={ipAdress}
               gateway={gateway}
               port={port}
+              options={options}
           
           /> : null}
         </Grid>
