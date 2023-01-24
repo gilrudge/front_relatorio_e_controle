@@ -13,9 +13,13 @@ import {
   validateDnsAdress, validateGateway, validateIpFixoDhcp,
   validateMacAdress
         } from '../../../utils/validate';
+import SuccessAlert from '../Alerts/SuccessAlert';
 
 
 export default function UpdateBranch(props) {
+
+    const [updateAlert,setUpdateAlert] = React.useState();
+    const showUpdateAlert = () => updateAlert ? setUpdateAlert(false) : setUpdateAlert(true);
 
     const {register, handleSubmit, formState:{errors}} = useForm({defaultValues:{
       
@@ -47,8 +51,9 @@ export default function UpdateBranch(props) {
           ipfixo_dhcp: data.ipfixo_dhcp,          
           mac_adress: data.mac_adress
       })
+      showUpdateAlert()  
+      
       window.location.reload()
-      alert('Agência alterada com sucesso')     
 
     }
 
@@ -237,6 +242,7 @@ export default function UpdateBranch(props) {
         <Box sx={{m: 2, display: 'flex', justifyContent:'end', gap: 2}}>         
           <Button variant="contained" type="submit">Salvar Alterações</Button>          
         </Box>
+        {updateAlert ? <SuccessAlert textSuccess={'Agência alterada com Sucesso!'}></SuccessAlert> : null}
       </Box>      
     </Paper>
     </>

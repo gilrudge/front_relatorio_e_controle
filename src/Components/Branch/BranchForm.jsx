@@ -13,50 +13,79 @@ import {
         } from '../../../utils/validate';
 
 import { useForm } from 'react-hook-form';
+import SuccessAlert from '../Alerts/SuccessAlert';
+import DenyAlert from '../Alerts/DenyAlert';
+
 
 
 export default function BranchForm(props) {
 
-  const {register, handleSubmit, reset, formState:{errors}} = useForm();
+  const [successAlert,setSuccessAlert] = React.useState();
+  const [denyAlert,setDenyAlert] = React.useState();
+  
+  const showSuccessAlert = () => successAlert ? setSuccessAlert(false) : setSuccessAlert(true);
+  const showdenyAlert = () => denyAlert ? setDenyAlert(false) : setDenyAlert(true);
 
-  const dataOptions = props.options.map(item => item.numero_ag)
+  const {register, handleSubmit, resetField, formState:{errors}} = useForm({defaultValues:{
+      
+    nome_banco:"",
+    numero_ag: "",
+    nome_ag: "",
+    end_ip:"",
+    porta: "",
+    masc_rede: "",
+    end_dns: "",
+    gateway: "",
+    ipfixo_dhcp: "",
+    mac_adress: ""
 
-  const onSubmit = async (data) => {
-    console.log(dataOptions)
-    await axios.post('http://localhost:4000', {
-          
-          nome_banco: data.nome_banco,          
-          numero_ag: data.numero_ag,          
-          nome_ag: data.nome_ag,         
-          end_ip: data.end_ip,          
-          porta: data.porta,         
-          masc_rede: data.masc_rede,         
-          end_dns: data.end_dns,          
-          gateway: data.gateway,          
-          ipfixo_dhcp: data.ipfixo_dhcp,          
-          mac_adress: data.mac_adress
-        })
-        props.updateOptions()
-        refreshBranchForm()
-        alert('Agência criada com sucesso')
-        window.location.reload()
+  }});
+  const handleClick = () => {
+    resetField("nome_banco");
+    resetField("numero_ag");
+    resetField("nome_ag");
+    resetField("end_ip");
+    resetField("porta");
+    resetField("masc_rede");
+    resetField("end_dns");
+    resetField("gateway");
+    resetField("ipfixo_dhcp");
+    resetField("mac_adress");
   }
+  
+  const onSubmit = async (data) => {
+    const dataOptions = props.options.filter(item => item.numero_ag === data.numero_ag)
     
+    if(dataOptions.length === 0){
 
-  function refreshBranchForm() {
-    
-    props.setBranchNumber('');
-    props.setNetworkMask('');
-    props.setIpFixoDhcp('');
-    props.setBranchName('');
-    props.setDnsAdress('');
-    props.setMacAdress('');
-    props.setIpAdress('');
-    props.setBankName('');
-    props.setGateway('');
-    props.setPort('');
-        
-  }  
+      await axios.post('http://localhost:4000', {
+            
+            nome_banco: data.nome_banco,          
+            numero_ag: data.numero_ag,          
+            nome_ag: data.nome_ag,         
+            end_ip: data.end_ip,          
+            porta: data.porta,         
+            masc_rede: data.masc_rede,         
+            end_dns: data.end_dns,          
+            gateway: data.gateway,          
+            ipfixo_dhcp: data.ipfixo_dhcp,          
+            mac_adress: data.mac_adress
+          })
+          props.updateOptions()
+          handleClick()
+          // alert('Agência criada com sucesso')
+          
+          // window.location.reload()
+        } else{
+          setSuccessAlert(false)
+          showdenyAlert()
+          return
+        }
+        setDenyAlert(false)
+        showSuccessAlert()
+
+  }    
+
 
   return (
     <Paper sx={{ p: 2, mt: 3 }}>
@@ -91,7 +120,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label="Número da Agência"
-            autoComplete="Número da Agência"
+            // autoComplete="Número da Agência"
             onChange={(e) => props.setBranchNumber(e.target.value)}
             required
             type="text"            
@@ -108,7 +137,7 @@ export default function BranchForm(props) {
             size="small"            
             id="outlined"
             label="Nome Agência"
-            autoComplete="Nome Agência"            
+            // autoComplete="Nome Agência"            
             onChange={(e) => props.setBranchName(e.target.value)}
             required
             type="text"            
@@ -125,7 +154,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label='Endereço IP'
-            autoComplete='Endereço IP'            
+            // autoComplete='Endereço IP'            
             onChange={(e) => props.setIpAdress(e.target.value)}
             required
             type="text"            
@@ -142,7 +171,7 @@ export default function BranchForm(props) {
             size="small"            
             id="outlined"
             label="Porta"
-            autoComplete='Porta'            
+            // autoComplete='Porta'            
             onChange={(e) => props.setPort(e.target.value)}
             required
             type="text"            
@@ -161,7 +190,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label="Máscara de Rede"
-            autoComplete='Máscara_Rede'
+            // autoComplete='Máscara_Rede'
             onChange={(e) => props.setNetworkMask(e.target.value)}
             required
             type="text"
@@ -178,7 +207,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label="Endereço DNS"
-            autoComplete='Endereço_DNS'
+            // autoComplete='Endereço_DNS'
             onChange={(e) => props.setDnsAdress(e.target.value)}
             required
             type="text"
@@ -211,7 +240,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label="IP Fixo / DHCP"            
-            autoComplete='IP_Fixo_DHCP'            
+            // autoComplete='IP_Fixo_DHCP'            
             onChange={(e) => props.setIpFixoDhcp(e.target.value)}
             required
             type="text"
@@ -228,7 +257,7 @@ export default function BranchForm(props) {
             size="small"
             id="outlined"
             label="MAC Adress"            
-            autoComplete='Mac_Adress'
+            // autoComplete='Mac_Adress'
             onChange={(e) => props.setMacAdress(e.target.value)}
             required
             type="text"
@@ -243,9 +272,11 @@ export default function BranchForm(props) {
           />           
         </Box>
         <Box sx={{ m: 2, display: 'flex', justifyContent: 'end', gap: 2 }}>
-          <Button variant="contained" onClick={ refreshBranchForm }>Limpar</Button>
+          <Button variant="contained" onClick={ handleClick }>Limpar</Button>
           <Button variant="contained"  type="submit">Criar Agência</Button>
         </Box>
+        {successAlert ? <SuccessAlert textSuccess={'Agência criada com Sucesso!'}></SuccessAlert> : null}
+        {denyAlert ? <DenyAlert textDeny={'Número de Agência já existe!'}></DenyAlert> : null}
       </Box>
     </Paper>
   );
