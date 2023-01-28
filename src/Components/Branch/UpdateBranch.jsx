@@ -18,10 +18,23 @@ import SuccessAlert from '../Alerts/SuccessAlert';
 
 export default function UpdateBranch(props) {
 
-    const [updateAlert,setUpdateAlert] = React.useState();
+    const [updateAlert,setUpdateAlert] = React.useState(false);
     const showUpdateAlert = () => updateAlert ? setUpdateAlert(false) : setUpdateAlert(true);
 
-    const {register, handleSubmit, formState:{errors}} = useForm({defaultValues:{
+    const handleClick = () => {
+      resetField("nome_banco");
+      resetField("numero_ag");
+      resetField("nome_ag");
+      resetField("end_ip");
+      resetField("porta");
+      resetField("masc_rede");
+      resetField("end_dns");
+      resetField("gateway");
+      resetField("ipfixo_dhcp");
+      resetField("mac_adress");
+    }
+
+    const {register, handleSubmit, resetField, formState:{errors}} = useForm({defaultValues:{
       
       nome_banco:props.data.branch.nome_banco,
       numero_ag: props.data.branch.numero_ag,
@@ -35,7 +48,7 @@ export default function UpdateBranch(props) {
       mac_adress: props.data.branch.mac_adress
 
     }});
-
+    
     const onSubmit = async (data) =>{      
       
       await axios.put(`http://localhost:4000/${data.numero_ag}`,
@@ -50,21 +63,19 @@ export default function UpdateBranch(props) {
           gateway: data.gateway,          
           ipfixo_dhcp: data.ipfixo_dhcp,          
           mac_adress: data.mac_adress
-      })
-      showUpdateAlert()  
-      
+      })      
+    
+      showUpdateAlert()      
       window.location.reload()
-
     }
-
-
+    
     useEffect(()=> {
-      props.updateOptions()
-      
-    }, [])
+           
+    }, [props.data.branch])
 
   return (
     <>
+    
     <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
       <Title>Alterar Dados</Title>
       <Box
@@ -112,7 +123,7 @@ export default function UpdateBranch(props) {
             size="small"            
             id="outlined"
             label="Nome Agência"
-            autoComplete="Nome Agência"           
+            // autoComplete="Nome Agência"           
             required
             type="text"            
             {...register("nome_ag", {
@@ -128,7 +139,7 @@ export default function UpdateBranch(props) {
             size="small"
             id="outlined"
             label='Endereço IP'
-            autoComplete='Endereço IP'            
+            // autoComplete='Endereço IP'            
             required
             type="text"            
             {...register('end_ip', {
@@ -144,7 +155,7 @@ export default function UpdateBranch(props) {
             size="small"            
             id="outlined"
             label="Porta"
-            autoComplete='Porta'            
+            // autoComplete='Porta'            
             required
             type="text"            
             {...register('porta', {
@@ -162,7 +173,7 @@ export default function UpdateBranch(props) {
             size="small"
             id="outlined"
             label="Máscara de Rede"
-            autoComplete='Máscara_Rede'
+            // autoComplete='Máscara_Rede'
             required
             type="text"
             {...register('masc_rede', {
@@ -178,7 +189,7 @@ export default function UpdateBranch(props) {
             size="small"
             id="outlined"
             label="Endereço DNS"
-            autoComplete='Endereço DNS'          
+            // autoComplete='Endereço DNS'          
             required
             type="text"
             {...register('end_dns', {
@@ -209,7 +220,7 @@ export default function UpdateBranch(props) {
             size="small"
             id="outlined"
             label="IP Fixo / DHCP"            
-            autoComplete="IP Fixo / DHCP"            
+            // autoComplete="IP Fixo / DHCP"            
             
             required
             type="text"
@@ -226,7 +237,7 @@ export default function UpdateBranch(props) {
             size="small"
             id="outlined"
             label="MAC Adress"            
-            autoComplete="MAC Adress"            
+            // autoComplete="MAC Adress"            
             required
             type="text"
             {...register('mac_adress', {

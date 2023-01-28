@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import newTheme from './Theme';
 import Logo from '../assets/image/logo-branco.png';
+import Logos from '../assets/image/logos.png';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -130,7 +131,7 @@ function DashboardContent() {
             >
               Relatório de Acesso
             </Typography>
-            <img src={Logo} alt="Logo Santander" width={180}/>
+            <img src={Logos} alt="Logo Santander" height={45}/>
             <IconButton color="inherit">
             </IconButton>
           </Toolbar>

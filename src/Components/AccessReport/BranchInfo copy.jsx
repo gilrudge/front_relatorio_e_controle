@@ -9,27 +9,56 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
-
-
+import StatusIcon from '../Avatar/StatusIcon';
 
 export default function BranchInfo(props) {
 
-  const [events, setEvents] = React.useState([]);
+  // const [events, setEvents] = React.useState([]);
   const [downloadCsv, setDownloadCsv] = React.useState([]);
-  useEffect(()=>{
-    const getInfosBranch = async (branchNumber, chosenDate) => {
-      await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-          .then((response) => {setEvents(response.data.relatorio)})        
-    }
-        
-    const automaticUpdate = async () => {
-      if(props.report) {
-        setInterval(await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/")), 20000)
-      }
-    }     
-    automaticUpdate()    
+  const [statusPort, setStatusPort] = React.useState(0);
+  const [alterColor, setAlterColor] = React.useState('red');
 
-    },[events]);
+
+
+  // const getInfosBranch = async (branchNumber, chosenDate) => {
+  //   await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
+  //       .then((response) => {setEvents(response.data.relatorio)})
+  //     }
+
+
+  // const numAgEvent = events.reduce((acc,item, index, array) => {
+  //   return item.nr_agencia},0)
+    // console.log(teste)
+      
+  const automaticUpdate = async () => {
+    
+    if(props.report) {        
+      await props.getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))        
+    }
+  }
+
+  // console.log(numAgEvent)
+  // console.log(typeof(numAgEvent))
+  // console.log(props.data.branch.numero_ag)
+  // console.log(typeof(props.data.branch.numero_ag))
+
+  const deviceStatus = async () => {
+    await axios.get(`http://localhost:4000/status`)              
+               .then(response => {setStatusPort(response.data.r)})
+  };
+  
+  const changeStatusColor = async () => {
+    // statusPort && statusPort == 1 ? setAlterColor('green') : setAlterColor('red') ? statusPort == null : automaticUpdate()    
+
+    statusPort === 1 ? setAlterColor('green') : setAlterColor('red')   
+    // if(statusPort && statusPort === 1 && props.data.branch.numero_ag === numAgEvent)
+  }
+
+  useEffect(()=>{ 
+    automaticUpdate()    
+    deviceStatus() 
+    changeStatusColor()
+    },[props.events]);
     
     
     useEffect (() => {
@@ -49,10 +78,9 @@ export default function BranchInfo(props) {
       { field: 'descEvent', headerName: 'EVENTO', width: 380 },
       { field: 'cont', headerName: 'CONTADOR', width: 130 },
       { field: 'crc', headerName: 'CRC', width: 200 }
-    ];
-    
+    ];    
 
-    const rowsReport = events.map(evento=> {
+    const rowsReport = props.events.map(evento=> {
         const id = uuid()
         return {
           id:id,
@@ -64,8 +92,20 @@ export default function BranchInfo(props) {
           crc:evento.crc
         }
       });
+    // const rowsReport = events[1].map(evento=> {
+    //   const id = uuid()
+    //   return {
+    //     id:id,
+    //     date: evento.data_evt,
+    //     hour:evento.hora_evt,
+    //     descEvent: evento.descricao.desc_evento,
+    //     sequence:evento.nr_seq,
+    //     cont: evento.cont_evt,
+    //     crc:evento.crc
+    //   }
+    // });
 
-    const csvData = events.map(evento=> {
+    const csvData = props.events.map(evento=> {
       const id = uuid()
       return {
         id:id,
@@ -85,6 +125,7 @@ export default function BranchInfo(props) {
         crc:evento.crc,
       }
     });
+
           
   return (
     <>
@@ -183,11 +224,11 @@ export default function BranchInfo(props) {
           
           
           <Box sx={{ m: 2, display: 'flex', flexDirection:'row', justifyContent: 'space-between', alignItems: 'center'}}>
-{/* 
+
             <Box>
-              {statusPort && statusPort == 1 ? <StatusIcon color='green'/> : <StatusIcon color='red'/>}
+              {/* {statusPort && statusPort == 1 ? <StatusIcon color='green'/> : <StatusIcon color='red'/>}*/}
               <StatusIcon color={alterColor}/>
-            </Box> */}
+            </Box>
 
             <Box>
               <Button
