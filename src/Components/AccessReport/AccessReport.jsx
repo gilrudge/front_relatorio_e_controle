@@ -36,38 +36,27 @@ export default function AccessReport() {
   const [options, setOptions] = React.useState([]);
   const [changes, setChanges] = React.useState();
   const [report, setReport] = React.useState();
-  const [events, setEvents] = React.useState([]);
+  
  
   const [form, setForm] = React.useState();
 
   const showChanges = () => changes ? setChanges(false) : setChanges(true)
   const showReport = () => report ? setReport(false) : setReport(true);
   const showForm = () => form ? setForm(false) : setForm(true);
-  // const handleSubmit = (e) => e.preventDefault();
-
-  // const {numero_ag} = selectedBranch
-
-  const getInfosBranch = async (branchNumber, chosenDate) => {
-    await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-        .then((response) => {setEvents(response.data.relatorio)})
-      }
+  
 
   const fetchOptions = async () => {
     const dbList = await axios.get(`http://localhost:4000`)
     setOptions(dbList.data)
   }
-  console.log({selectedBranch, selectedDate, options})
+  
 
   useEffect(() => {
     
     fetchOptions()
   }, [options])
 
-  useEffect(() => {
-
-
-    
-  }, [events])
+  
   
   return (
     <>
@@ -78,9 +67,8 @@ export default function AccessReport() {
               <Stack direction="row" sx={{ alignItems: 'center' }} >
                 <Box 
                   component="form"
-                  onSubmit={(event) => { event.preventDefault(), handleSubmit(event, getInfosBranch(selectedBranch.numero_ag, selectedDate))}}
+                  onSubmit={(event) => { event.preventDefault(), handleSubmit(event, selectedBranch.numero_ag, selectedDate)}}
                   sx={{display: 'flex'}}
-
                   >
                   <Autocomplete
                     onChange={(_event, value) => setSelectedBranch(value)}
@@ -92,29 +80,27 @@ export default function AccessReport() {
                     isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
                     sx={{ m: 1, width: 300 }}
                     renderInput={(params) => <TextField {...params} required label="Agência" />}
-                    value={selectedBranch}
-                                    
+                    value={selectedBranch}                                    
                   />                
-                <TextField sx={{ m: 1 , width: 200 }}
-                  required
-                  type="date"
-                  size="small"
-                  id='data-field'
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-                {selectedBranch
-                  && selectedDate
-                  ?
-                  <IconButton
-                    color="primary"
-                    size="large"
-                    type="submit" 
-                    onSubmit={(event) => {handleSubmit(event, getInfosBranch(selectedBranch.numero_ag, selectedDate))}}
-                    onClick={() => {showReport(true), setForm(false)}}>
-                    <SearchIcon fontSize="inherit" />
-                  </IconButton>
-                  : null}
+                  <TextField sx={{ m: 1 , width: 200 }}
+                    required
+                    type="date"
+                    size="small"
+                    id='data-field'
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+                  {selectedBranch && selectedDate
+                    ?
+                    <IconButton
+                      color="primary"
+                      size="large"
+                      type="submit"                       
+                      onClick={() => {showReport(true), setForm(false)}}>
+                      <SearchIcon fontSize="inherit" />
+                    </IconButton>
+                    :
+                    null}
 
                   </Box>
               </Stack>
@@ -151,9 +137,7 @@ export default function AccessReport() {
               port={port}
               options={options}
 
-              events={events}
-              setEvents={setEvents}
-              getInfosBranch={getInfosBranch}
+              
           
           /> : null}
         </Grid>
@@ -187,9 +171,7 @@ export default function AccessReport() {
               port={port}
               setChanges={setChanges}
 
-              events={events}
-              setEvents={setEvents}
-              getInfosBranch={getInfosBranch}
+              
             />
             : null}
 
@@ -212,9 +194,7 @@ export default function AccessReport() {
             report={report}
             port={port}
 
-            events={events}
-            setEvents={setEvents}
-             getInfosBranch={getInfosBranch}
+            
             /> : null}
         </Grid>
       </Grid>

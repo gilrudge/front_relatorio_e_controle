@@ -9,29 +9,43 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
-
-
+import StatusIcon from '../Avatar/StatusIcon';
 
 export default function BranchInfo(props) {
 
   const [events, setEvents] = React.useState([]);
+  const [statusPort, setStatusPort] = React.useState([]);
   const [downloadCsv, setDownloadCsv] = React.useState([]);
-  useEffect(()=>{
-    const getInfosBranch = async (branchNumber, chosenDate) => {
-      await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-          .then((response) => {setEvents(response.data.relatorio)})        
+  
+  const automaticUpdate = async () => {
+    if(props.report) {
+      setInterval(await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/")), 20000)
     }
-        
-    const automaticUpdate = async () => {
-      if(props.report) {
-        setInterval(await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/")), 20000)
-      }
-    }     
-    automaticUpdate()    
+  }     
+  
+  const getInfosBranch = async (branchNumber, chosenDate) => {
+    await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
+        .then((response) => {setEvents(response.data.relatorio)})        
+  }
+  useEffect(()=>{
+   
+    automaticUpdate()
+    getStatusPort()
 
     },[events]);
     
     
+    const getStatusPort = async () => {
+      await axios.get(`http://localhost:4000/status`)
+        .then((response) => {
+          setStatusPort(response.data)
+          if (response.data.name) {
+            getStatusPort();
+          }
+          else automaticUpdate()
+        })   
+    }
+
     useEffect (() => {
       const getCsvInfo = async (branchNumber, chosenDate) => {
         await axios.get(`http://localhost:4000/export/${branchNumber}/?date=${chosenDate}`)
@@ -183,11 +197,10 @@ export default function BranchInfo(props) {
           
           
           <Box sx={{ m: 2, display: 'flex', flexDirection:'row', justifyContent: 'space-between', alignItems: 'center'}}>
-{/* 
+
             <Box>
-              {statusPort && statusPort == 1 ? <StatusIcon color='green'/> : <StatusIcon color='red'/>}
-              <StatusIcon color={alterColor}/>
-            </Box> */}
+              {statusPort == props.data.branch.mac_adress ? <StatusIcon color='green'/> : <StatusIcon color='red'/>}
+            </Box>
 
             <Box>
               <Button

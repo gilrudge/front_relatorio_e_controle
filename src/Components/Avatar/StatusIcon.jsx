@@ -14,7 +14,7 @@ export default function StatusIcon(props) {
       <Typography
         variant='subtitle2'
       >
-        Status Porta: 
+        Status Agência: 
       </Typography>
       <CircleIcon  sx={{ color: props.color, width: 20, height: 20 }}/>     
     </Box>
