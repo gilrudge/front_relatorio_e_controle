@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import BranchInfo from './BranchInfo';
 import { Box } from '@mui/system';
 import { useForm } from 'react-hook-form';
+import CircularLoading from '../CircularLoading/CircularLoading';
 
 export default function AccessReport() {
 
@@ -36,6 +37,7 @@ export default function AccessReport() {
   const [options, setOptions] = React.useState([]);
   const [changes, setChanges] = React.useState();
   const [report, setReport] = React.useState();
+  const [loading, setLoading] = React.useState(false)
   
  
   const [form, setForm] = React.useState();
@@ -56,7 +58,9 @@ export default function AccessReport() {
     fetchOptions()
   }, [options])
 
-  
+  useEffect(() => {
+    setReport(false)
+  },[selectedBranch,selectedDate])
   
   return (
     <>
@@ -96,7 +100,7 @@ export default function AccessReport() {
                       color="primary"
                       size="large"
                       type="submit"                       
-                      onClick={() => {showReport(true), setForm(false)}}>
+                      onClick={() => {setReport(true), setForm(false)}}>
                       <SearchIcon fontSize="inherit" />
                     </IconButton>
                     :
@@ -174,9 +178,11 @@ export default function AccessReport() {
               
             />
             : null}
-
           {report && selectedBranch ?
+            
             <BranchInfo
+            setLoading={setLoading}
+            loading={loading}
             showReport={showReport}
             showChanges={showChanges}
             updateOptions={fetchOptions}
@@ -192,10 +198,9 @@ export default function AccessReport() {
             setGateway={setGateway}
             setPort={setPort}
             report={report}
-            port={port}
-
-            
-            /> : null}
+            port={port}            
+            /> 
+            : null }
         </Grid>
       </Grid>
     </>

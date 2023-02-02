@@ -10,12 +10,14 @@ import { useEffect } from 'react';
 import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
 import StatusIcon from '../Avatar/StatusIcon';
+import CircularLoading from '../CircularLoading/CircularLoading'
 
 export default function BranchInfo(props) {
 
   const [events, setEvents] = React.useState([]);
   const [statusPort, setStatusPort] = React.useState([]);
   const [downloadCsv, setDownloadCsv] = React.useState([]);
+  
   
   const automaticUpdate = async () => {
     if(props.report) {
@@ -24,8 +26,10 @@ export default function BranchInfo(props) {
   }     
   
   const getInfosBranch = async (branchNumber, chosenDate) => {
+    
     await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-        .then((response) => {setEvents(response.data.relatorio)})        
+        .then((response) => {setEvents(response.data.relatorio)}) 
+               
   }
   useEffect(()=>{
    
@@ -33,9 +37,13 @@ export default function BranchInfo(props) {
     getStatusPort()
 
     },[events]);
+
+  
     
     
     const getStatusPort = async () => {
+
+      // props.setLoading(true)
       await axios.get(`http://localhost:4000/status`)
         .then((response) => {
           setStatusPort(response.data)
@@ -43,7 +51,8 @@ export default function BranchInfo(props) {
             getStatusPort();
           }
           else automaticUpdate()
-        })   
+        })
+      // props.setLoading(false)     
     }
 
     useEffect (() => {
@@ -221,7 +230,8 @@ export default function BranchInfo(props) {
               </Button>          
             </Box>
           </Box>
-        </Box>
+        </Box>       
+          
         <Box sx={{ height: 450, width: '100%' }}>
           <Title>Relatório de Acesso</Title>
             <DataGrid
@@ -233,6 +243,8 @@ export default function BranchInfo(props) {
             rowsPerPageOptions={[25, 50, 100]}            
           />
         </Box>
+        
+        
       </Paper>
     </>
   );
