@@ -22,6 +22,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import Container from '@mui/material/Container';
 import AccessReport from './AccessReport/AccessReport';
+import AccessControl from './AccessControl/AccessControl';
 
 function Copyright(props) {
   return (
@@ -100,6 +101,17 @@ function DashboardContent() {
     controller ? setController(false) : setController(true)
   }
 
+  function setTitle() {
+    if (report && !controller) {
+      return 'Relatório de Acesso'
+    }
+    else if (!report && controller) {
+      return 'Controle de Acesso'
+    }
+    else return null
+  }
+  
+
   return (
     <ThemeProvider theme={newTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -122,6 +134,7 @@ function DashboardContent() {
             >
               <MenuIcon />
             </IconButton>
+            
             <Typography
               component="h1"
               variant="h6"
@@ -129,8 +142,9 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Relatório de Acesso
-            </Typography>
+              {setTitle()}
+            </Typography> 
+            
             <img src={Logos} alt="Logo Santander" height={45}/>
             <IconButton color="inherit">
             </IconButton>
@@ -152,13 +166,14 @@ function DashboardContent() {
           <Divider />
           <List component="nav">
             <React.Fragment>
-              <ListItemButton onClick={() => {showReport()}}>
+              <ListItemButton onClick={() => {showReport(), setController(false)}}>
                 <ListItemIcon>
                   <AssignmentIcon />
                 </ListItemIcon>
                 <ListItemText primary="Relatório de Acesso"/>
               </ListItemButton>
-              <ListItemButton onClick={()=> {showController()}}>
+
+              <ListItemButton onClick={()=> {showController(), setReport(false)}}>
                 <ListItemIcon>
                   <PeopleIcon />
                 </ListItemIcon>
@@ -182,6 +197,7 @@ function DashboardContent() {
         <Toolbar />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         {report ? <AccessReport/> : null}
+        {controller ? <AccessControl/> : null}
         <Copyright sx={{ pt: 4 }} />
         </Container>
         </Box>

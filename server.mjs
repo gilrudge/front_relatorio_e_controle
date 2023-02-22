@@ -10,6 +10,6 @@ const port = 4001
 app.use(express.static('./dist/'))
 app.get('*', (req, res) => res.sendFile('index.html', {root: './dist'}));
 
-app.listen(port, () => console.log(`Server running at http://localhos:${port}`))
+app.listen(port, () => console.log(`Server running at http://localhost:${port}`))
 
 

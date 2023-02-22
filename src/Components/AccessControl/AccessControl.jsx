@@ -1,22 +1,25 @@
-import * as React from 'react';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
-import UpdateBranchReport from './UpdateBranchReport';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
-import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
-import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
 import AddIcon from '@mui/icons-material/Add';
-import Stack from '@mui/material/Stack';
-import BranchFormReport from './BranchFormReport';
-import axios from 'axios';
-import { useEffect } from 'react';
-import BranchInfoReport from './BranchInfoReport';
-import { Box } from '@mui/system';
 import { useForm } from 'react-hook-form';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
+import { useEffect } from 'react';
+import { Box } from '@mui/system';
+import * as React from 'react';
+import axios from 'axios';
 
-export default function AccessReport() {
+import UpdateBranchControl from './UpdateBranchControl';
+import EmployeeFormControl from './EmployeeFormControl';
+import Autocomplete from '@mui/material/Autocomplete';
+import BranchInfoControl from './BranchInfoControl';
+import BranchFormControl from './BranchFormControl';
+
+
+export default function AccessControl() {
 
   const { register, handleSubmit, resetField, formState: { errors } } = useForm({})
 
@@ -32,11 +35,12 @@ export default function AccessReport() {
   const [port, setPort] = React.useState();
 
   const [selectedBranch, setSelectedBranch] = React.useState();
-  const [selectedDate, setSelectedDate] = React.useState();
+  // const [selectedDate, setSelectedDate] = React.useState();
   const [options, setOptions] = React.useState([]);
   const [changes, setChanges] = React.useState();
   const [report, setReport] = React.useState();
   const [loading, setLoading] = React.useState(false)
+  const [employeeBtn, setEmployeeBtn] = React.useState(false)
 
 
   const [form, setForm] = React.useState();
@@ -47,10 +51,9 @@ export default function AccessReport() {
 
 
   const fetchOptions = async () => {    
-    const dbList = await axios.get(`http://localhost:4000`)
+    const dbList = await axios.get(`http://localhost:4002`)
     setOptions(dbList.data)
   }
-
 
   useEffect(() => {
     fetchOptions()
@@ -58,7 +61,7 @@ export default function AccessReport() {
 
   useEffect(() => {
     setReport(false)
-  }, [selectedBranch, selectedDate])
+  }, [selectedBranch])
 
   return (
     <>
@@ -69,7 +72,7 @@ export default function AccessReport() {
               <Stack direction="row" sx={{ alignItems: 'center' }} >
                 <Box
                   component="form"
-                  onSubmit={(event) => { event.preventDefault(), handleSubmit(event, selectedBranch.numero_ag, selectedDate) }}
+                  onSubmit={(event) => { event.preventDefault(), handleSubmit(event, selectedBranch.numero_ag) }}
                   sx={{ display: 'flex' }}
                 >
                   <Autocomplete
@@ -84,15 +87,15 @@ export default function AccessReport() {
                     renderInput={(params) => <TextField {...params} required label="Agência" />}
                     value={selectedBranch}
                   />
-                  <TextField sx={{ m: 1, width: 200 }}
+                  {/* <TextField sx={{ m: 1, width: 200 }}
                     required
                     type="date"
                     size="small"
                     id='data-field'
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-                  {selectedBranch && selectedDate
+                  /> */}
+                  {selectedBranch
                     ?
                     <IconButton
                       color="primary"
@@ -114,9 +117,9 @@ export default function AccessReport() {
             </Stack>
           </Paper>
           {form ?
-            <BranchFormReport
+            <BranchFormControl
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch, date: selectedDate }}
+              data={{ branch: selectedBranch}}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -141,12 +144,20 @@ export default function AccessReport() {
             /> : null}
         </Grid>
         <Grid item xs={12}>
+          { employeeBtn === true ?
+            <EmployeeFormControl
+            setEmployeeBtn = {setEmployeeBtn}
+            showReport={showReport}
+            /> 
+          : null }
+        </Grid>
+        <Grid item xs={12}>
           {changes && selectedBranch ?
-            <UpdateBranchReport
+            <UpdateBranchControl
               showReport={showReport}
               showChanges={showChanges}
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch, date: selectedDate }}
+              data={{ branch: selectedBranch}}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -170,14 +181,15 @@ export default function AccessReport() {
               setChanges={setChanges}
             />
             : null}
+
           {report && selectedBranch ?
-            <BranchInfoReport
+            <BranchInfoControl
               setLoading={setLoading}
               loading={loading}
               showReport={showReport}
               showChanges={showChanges}
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch, date: selectedDate }}
+              data={{ branch: selectedBranch}}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -190,6 +202,7 @@ export default function AccessReport() {
               setPort={setPort}
               report={report}
               port={port}
+              setEmployeeBtn = {setEmployeeBtn}
             />
             : null}
         </Grid>

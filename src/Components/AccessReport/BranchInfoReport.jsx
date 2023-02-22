@@ -11,47 +11,38 @@ import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
 import StatusIcon from '../Avatar/StatusIcon';
 
-export default function BranchInfo(props) {
+export default function BranchInfoReport(props) {
 
   const [events, setEvents] = React.useState([]);
   const [statusPort, setStatusPort] = React.useState([]);
   const [downloadCsv, setDownloadCsv] = React.useState([]);
 
-
-  const automaticUpdate = async () => {
-    if (props.report) {
-      setInterval(await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/")), 2000)
-    }
-  }
-
+  const automaticUpdate = async () => {    
+    await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))
+  };
+  
   const getInfosBranch = async (branchNumber, chosenDate) => {
-    
     await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-      .then((response) => { setEvents(response.data.relatorio) })
+      .then((response) => { setEvents(response.data.relatorio)})
+  };
 
+  const getStatusBranch = async(ip) => {
+    await axios.get(`http://localhost:4000/status/${ip}`)
+               .then(response => {
+                response.data ? setStatusPort(true) : setStatusPort(false)
+               })
+               .catch(e => automaticUpdate())
   }
+    
+  
   useEffect(() => {
 
-    automaticUpdate()
-    getStatusPort()
+    if (props.report) {
+      automaticUpdate()
+      getStatusBranch(props.data.branch.end_ip)      
+    }
 
   }, [events]);
-
-
-  const getStatusPort = async () => {
-
-    await axios.get(`http://${props.data.branch.end_ip}/eventos?@MEV`)
-      .then((response) => { 
-        setStatusPort(response.data)
-        alert(statusPort)
-        // if (response.data.name) {
-        //   getStatusPort();
-        // }
-        // else automaticUpdate()
-      })
-         
-  }
-  getStatusPort()
 
   useEffect(() => {
     const getCsvInfo = async (branchNumber, chosenDate) => {
@@ -207,7 +198,7 @@ export default function BranchInfo(props) {
           <Box sx={{ m: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
 
             <Box>
-              {statusPort == props.data.branch.mac_adress ? <StatusIcon color='green' /> : <StatusIcon color='red' />}
+              {statusPort ? <StatusIcon color='green' /> : <StatusIcon color='red' />}
             </Box>
 
             <Box>

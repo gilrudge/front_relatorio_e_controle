@@ -16,7 +16,7 @@ import {
 import SuccessAlert from '../Alerts/SuccessAlert';
 
 
-export default function UpdateBranch(props) {
+export default function UpdateBranchControl(props) {
 
   const [updateAlert, setUpdateAlert] = React.useState(false);
   const showUpdateAlert = () => updateAlert ? setUpdateAlert(false) : setUpdateAlert(true);
@@ -53,7 +53,7 @@ export default function UpdateBranch(props) {
 
   const onSubmit = async (data) => {
 
-    await axios.put(`http://localhost:4000/${data.numero_ag}`,
+    await axios.put(`http://localhost:4002/${data.numero_ag}`,
       {
         nome_banco: data.nome_banco,
         numero_ag: data.numero_ag,

@@ -16,7 +16,7 @@ import {
 import SuccessAlert from '../Alerts/SuccessAlert';
 
 
-export default function UpdateBranch(props) {
+export default function UpdateBranchReport(props) {
 
   const [updateAlert, setUpdateAlert] = React.useState(false);
   const showUpdateAlert = () => updateAlert ? setUpdateAlert(false) : setUpdateAlert(true);

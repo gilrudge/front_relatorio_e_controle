@@ -12,11 +12,11 @@ export default function StatusIcon(props) {
   return (     
     <Box sx={{display: 'flex', gap: 1, alignContent:'center'}}>
       <Typography
-        variant='subtitle2'
+        variant='h6'
       >
         Status Agência: 
       </Typography>
-      <CircleIcon  sx={{ color: props.color, width: 20, height: 20 }}/>     
+      <CircleIcon  sx={{ color: props.color, width: 30, height: 30 }}/>     
     </Box>
     
   );

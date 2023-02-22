@@ -18,7 +18,7 @@ import DenyAlert from '../Alerts/DenyAlert';
 
 
 
-export default function BranchForm(props) {
+export default function BranchFormReport(props) {
 
   const [successAlert, setSuccessAlert] = React.useState();
   const [denyAlert, setDenyAlert] = React.useState();
@@ -54,11 +54,14 @@ export default function BranchForm(props) {
     resetField("ipfixo_dhcp");
     resetField("mac_adress");
   }
-
+  const ipText = 'Ip já existe no sistema'
+  const branchText = 'Agência cadastrada já existe no sistema'
   const onSubmit = async (data) => {
-    const dataOptions = props.options.filter(item => item.numero_ag === data.numero_ag)
+    
+    const dataOptionsIp = props.options.filter(item => item.end_ip === data.end_ip)
+    const dataOptionsBranch = props.options.filter(item => item.numero_ag === data.numero_ag)
 
-    if (dataOptions.length === 0) {
+    if (dataOptionsBranch.length === 0 && dataOptionsIp.length === 0) {
 
       await axios.post('http://localhost:4000', {
 
@@ -286,7 +289,7 @@ export default function BranchForm(props) {
           <Button variant="contained" type="submit">Criar Agência</Button>
         </Box>
         {successAlert ? <SuccessAlert textSuccess={'Agência criada com Sucesso!'}></SuccessAlert> : null}
-        {denyAlert ? <DenyAlert textDeny={'Número de Agência já existe!'}></DenyAlert> : null}
+        {denyAlert ? <DenyAlert textDeny={'Número de Agência e/ou IP já cadastrado(s)!'}></DenyAlert> : null}
       </Box>
     </Paper>
   );
