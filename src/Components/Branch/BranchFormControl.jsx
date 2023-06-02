@@ -75,7 +75,7 @@ export default function BranchFormControl(props) {
       })
       props.updateOptions()
       handleClick()
-      
+
     } else {
       setSuccessAlert(false)
       showdenyAlert()

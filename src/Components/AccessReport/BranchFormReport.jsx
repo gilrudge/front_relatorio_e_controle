@@ -57,7 +57,7 @@ export default function BranchFormReport(props) {
   const ipText = 'Ip já existe no sistema'
   const branchText = 'Agência cadastrada já existe no sistema'
   const onSubmit = async (data) => {
-    
+
     const dataOptionsIp = props.options.filter(item => item.end_ip === data.end_ip)
     const dataOptionsBranch = props.options.filter(item => item.numero_ag === data.numero_ag)
 
@@ -78,7 +78,7 @@ export default function BranchFormReport(props) {
       })
       props.updateOptions()
       handleClick()
-      
+
     } else {
       setSuccessAlert(false)
       showdenyAlert()

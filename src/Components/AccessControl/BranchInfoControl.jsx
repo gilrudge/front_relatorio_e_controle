@@ -11,107 +11,81 @@ import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
 import StatusIcon from '../Avatar/StatusIcon';
 import CommandsControl from './CommandsControl';
-import { borderBottom } from '@mui/system';
-
 
 export default function BranchInfoControl(props) {
 
-  const [events, setEvents] = React.useState([]);
-  const [statusPort, setStatusPort] = React.useState([]);
-  const [downloadCsv, setDownloadCsv] = React.useState([]);
+  
+  const [infosAndStatus, setInfosAndStatus] = React.useState([]);
+  // const [downloadCsv, setDownloadCsv] = React.useState([]);
+  const [statusPorts, setStatusPorts] = React.useState({});
+  const [statusBranch, setStatusBranch] = React.useState(false);
 
 
-  // const automaticUpdate = async () => {
-  //   if (props.report) {
-  //     setInterval(await getInfosBranch(props.data.branch.numero_ag, 20000))
-  //   }
-  // }
+  const getInfosAndStatus = async (branchNumber) => {
+    await axios.get(`http://localhost:4002/${branchNumber}/`)
+      .then((response) => { setInfosAndStatus(response.data.status) })
+  }
 
-  // const getInfosBranch = async (branchNumber) => {
-    
-  //   await axios.get(`http://localhost:4002/${branchNumber}/`)
-  //     .then((response) => { setEvents(response.data.relatorio) })
+  const automaticUpdate = async () => {
+    await getInfosAndStatus(props.data.branch.numero_ag)
+  };
 
-  // }
-  // useEffect(() => {
+  const getStatusBranch = async (ip) => {
+    await axios.get(`http://localhost:4002/status-branch/${ip}`)
+      .then(response => {
+        response.data ? setStatusBranch(true) : setStatusBranch(false)
+      })
+      .catch(e => automaticUpdate())
+  }
 
-  //   automaticUpdate()
-  //   getStatusPort()
-
-  // }, [events]);
-
-
-  // const getStatusPort = async () => {
-
-  //   await axios.get(`http://localhost:4000/status`)
-  //     .then((response) => {
-  //       setStatusPort(response.data)
-  //       if (response.data.name) {
-  //         getStatusPort();
-  //       }
-  //       else automaticUpdate()
-  //     })
-         
-  // }
-
-  // useEffect(() => {
-  //   const getCsvInfo = async (branchNumber, chosenDate) => {
-      
-  //     await axios.get(`http://localhost:4000/export/${branchNumber}/?date=${chosenDate}`)
-  //       .then((response) => { setDownloadCsv([response.data]) })
-  //   }
-  //   getCsvInfo(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))
-
-
-  // }, [downloadCsv])
+  useEffect(() => {
+    if (props.report || props.employeeBtn) {
+      automaticUpdate()
+      getStatusBranch(props.data.branch.end_ip)
+    }
+  }, [infosAndStatus])
 
   const columnsReport = [
-    { field: 'date', headerName: 'DATA', width: 100 },
-    { field: 'hour', headerName: 'HORA', width: 100 },
-    { field: 'employee', headerName: 'COLABORADOR', width: 350 },
-    { field: 'register', headerName: 'MATRÍCULA', width: 130 },
-    { field: 'descEvent', headerName: 'EVENTO', width: 300 },
-    { field: 'door', headerName: 'PORTA', width: 130 }    
+    { field: 'data_evt', headerName: 'DATA', width: 100 },
+    { field: 'hora_evt', headerName: 'HORA', width: 100 },
+    { field: 'usuario', headerName: 'USUÁRIO', width: 150 },
+    { field: 'comando', headerName: 'COMANDO', width: 400 },
+    { field: 'valor', headerName: 'VALOR', width: 80 },
+    { field: 'mac_adress', headerName: 'MAC', width: 180 },
   ];
 
 
-  const rowsReport = events.map(evento => {
+  const rowsReport = props.events.map(evento => {
     const id = uuid()
     return {
       id: id,
-      date: evento.data_evt,
-      hour: evento.hora_evt,
-      employee: evento.nome,
-      register: evento.nr_matricula,
-      descEvent: evento.descricao.desc_evento,
-      door: evento.porta_evt
+      data_evt: evento.data_evt,
+      hora_evt: evento.hora_evt,
+      usuario: evento.usuario,      
+      comando: evento.comando,
+      valor: evento.valor,
+      mac_adress: evento.mac_adress
     }
   });
 
-  const csvData = events.map(evento => {
+  const csvData = props.events.map(evento => {
     const id = uuid()
     return {
       id: id,
       nome_ag: props.data.branch.nome_ag,
-      numero_ag: props.data.branch.numero_ag,
-      descEvent: evento.descricao.desc_evento,
-      date: evento.data_evt,
-      hour: evento.hora_evt,
-      cont: evento.cont_evt,
-      end_ip: props.data.branch.end_ip,
-      porta: props.data.branch.porta,
-      masc_rede: props.data.branch.masc_rede,
-      gateway: props.data.branch.gateway,
-      mac_adress: props.data.branch.mac_adress,
-      ipfixo_dhcp: props.data.branch.ipfixo_dhcp,
-      sequence: evento.nr_seq,
-      crc: evento.crc,
+      numero_ag: props.data.branch.numero_ag,      
+      data_evt: evento.data_evt,
+      hora_evt: evento.hora_evt,
+      usuario:  evento.usuario,
+      valor: evento.valor,
+      comando: evento.comando,      
+      mac_adress: props.data.branch.mac_adress,      
     }
   });
 
   return (
     <>
-      <Paper sx={{ p: 2, height: '1250px', display: 'flex', flexDirection: 'column' }}>
+      <Paper sx={{ p: 2, height: '1700px', display: 'flex', flexDirection: 'column' }}>
         <Title>Dados da Agência</Title>
         <Box
           component="form"
@@ -120,7 +94,7 @@ export default function BranchInfoControl(props) {
           }}
           noValidate
           autoComplete="off"
-          style={{borderBottom: '1px solid #ddd', marginBottom: '20px', paddingBottom: '20px'}}
+          style={{ borderBottom: '1px solid #ddd', marginBottom: '20px', paddingBottom: '20px' }}
         >
           <Box>
             <TextField
@@ -208,14 +182,14 @@ export default function BranchInfoControl(props) {
           <Box sx={{ m: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
 
             <Box>
-              {statusPort == props.data.branch.mac_adress ? <StatusIcon color='green' /> : <StatusIcon color='red' />}
+              {statusBranch ? <StatusIcon color='green' /> : <StatusIcon color='red' />}
             </Box>
 
             <Box>
-            <Button
+              <Button
                 sx={{ mr: 2 }}
                 variant="contained"
-                onClick={() => { props.setEmployeeBtn(true), props.showReport()}}
+                onClick={() => { props.setEmployeeBtn(true), props.showReport() }}
               >
                 Colaboradores
               </Button>
@@ -229,7 +203,7 @@ export default function BranchInfoControl(props) {
               <Button variant="contained">
                 <CSVLink
                   data={csvData}
-                  filename={"my-file.csv"}
+                  filename={"relatorio-eventos-agencia.csv"}
                   target="_blank"
                   style={{ textDecoration: 'none', color: '#FFF' }}
                 >Exportar Dados
@@ -238,11 +212,28 @@ export default function BranchInfoControl(props) {
             </Box>
           </Box>
         </Box>
-        <CommandsControl/>
+        {infosAndStatus.length !== 0 ? 
+        <CommandsControl
+          getInfosAndStatus={getInfosAndStatus}
+          // getStatusPorts={getStatusPorts}
+          statusPorts={statusPorts}
+          infosAndStatus={infosAndStatus}
+          data={props.data.branch}
+        /> : null}
         <Box sx={{ height: 450, width: '100%' }}>
-          <Title>Controle de Acesso</Title>
+          <Box
+            style={{display:'flex', justifyContent:'space-between' , marginBottom:'20px'}}
+          >
+            <Title>Controle de Acesso</Title>
+            <Button
+            variant="contained"
+            onClick={()=>{props.getEvents(props.data.branch.numero_ag)}}
+            >
+              Atualizar
+            </Button>
+          </Box>
           <DataGrid
-            id="relatorio_acesso"
+            id="controle_acesso"
             getRowId={(evento) => evento?.id}
             rowHeight={30}
             rows={rowsReport}
@@ -252,7 +243,7 @@ export default function BranchInfoControl(props) {
         </Box>
 
       </Paper>
-      
+
     </>
   );
 

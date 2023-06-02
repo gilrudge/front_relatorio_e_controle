@@ -35,13 +35,14 @@ export default function AccessControl() {
   const [port, setPort] = React.useState();
 
   const [selectedBranch, setSelectedBranch] = React.useState();
+  const [infosAndStatus, setInfosAndStatus] = React.useState([]);
   // const [selectedDate, setSelectedDate] = React.useState();
   const [options, setOptions] = React.useState([]);
   const [changes, setChanges] = React.useState();
   const [report, setReport] = React.useState();
   const [loading, setLoading] = React.useState(false)
   const [employeeBtn, setEmployeeBtn] = React.useState(false)
-
+  const [events, setEvents] = React.useState([]);
 
   const [form, setForm] = React.useState();
 
@@ -49,15 +50,25 @@ export default function AccessControl() {
   const showReport = () => report ? setReport(false) : setReport(true);
   const showForm = () => form ? setForm(false) : setForm(true);
 
-
-  const fetchOptions = async () => {    
+  const fetchOptions = async () => {
     const dbList = await axios.get(`http://localhost:4002`)
     setOptions(dbList.data)
   }
 
+  const getInfosAndStatus = async (branchNumber) => {
+    await axios.get(`http://localhost:4002/${branchNumber}/`)
+      .then((response) => {setInfosAndStatus(response.data) })
+  }
+
+  const getEvents = async (branchNumber) => {
+    await axios.get(`http://localhost:4002/eventos-agencia/${branchNumber}`)
+               .then(response => setEvents(response.data.controle))
+               .catch(e => console.log(e))
+  };
+
   useEffect(() => {
     fetchOptions()
-  }, [options])
+  }, []) // TIREI O OPTIONS DAQUI ******************************************************************************************************************
 
   useEffect(() => {
     setReport(false)
@@ -75,6 +86,7 @@ export default function AccessControl() {
                   onSubmit={(event) => { event.preventDefault(), handleSubmit(event, selectedBranch.numero_ag) }}
                   sx={{ display: 'flex' }}
                 >
+                  {!employeeBtn ?
                   <Autocomplete
                     onChange={(_event, value) => setSelectedBranch(value)}
                     disablePortal
@@ -86,7 +98,20 @@ export default function AccessControl() {
                     sx={{ m: 1, width: 300 }}
                     renderInput={(params) => <TextField {...params} required label="Agência" />}
                     value={selectedBranch}
-                  />
+                  /> :
+                  <Autocomplete
+                    disabled
+                    onChange={(_event, value) => setSelectedBranch(value)}
+                    disablePortal
+                    id="combo-box-demo"
+                    size="small"
+                    options={options}
+                    getOptionLabel={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                    isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                    sx={{ m: 1, width: 300 }}
+                    renderInput={(params) => <TextField {...params} required label="Agência" />}
+                    value={selectedBranch}
+                  /> }
                   {/* <TextField sx={{ m: 1, width: 200 }}
                     required
                     type="date"
@@ -95,18 +120,17 @@ export default function AccessControl() {
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                   /> */}
-                  {selectedBranch
+                  {selectedBranch && !employeeBtn
                     ?
                     <IconButton
                       color="primary"
                       size="large"
                       type="submit"
-                      onClick={() => { setReport(true), setForm(false) }}>
+                      onClick={() => { setReport(true), setForm(false), getInfosAndStatus(selectedBranch.numero_ag), getEvents(selectedBranch.numero_ag)}}>
                       <SearchIcon fontSize="inherit" />
                     </IconButton>
                     :
                     null}
-
                 </Box>
               </Stack>
               <Stack>
@@ -119,7 +143,7 @@ export default function AccessControl() {
           {form ?
             <BranchFormControl
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch}}
+              data={{ branch: selectedBranch }}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -144,12 +168,15 @@ export default function AccessControl() {
             /> : null}
         </Grid>
         <Grid item xs={12}>
-          { employeeBtn === true ?
+          {employeeBtn === true ?
             <EmployeeFormControl
-            setEmployeeBtn = {setEmployeeBtn}
-            showReport={showReport}
-            /> 
-          : null }
+              setEmployeeBtn={setEmployeeBtn}
+              showReport={showReport}
+              infosAndStatus={infosAndStatus}
+              getInfosAndStatus={getInfosAndStatus}
+              data={selectedBranch}
+            />
+            : null}
         </Grid>
         <Grid item xs={12}>
           {changes && selectedBranch ?
@@ -157,7 +184,7 @@ export default function AccessControl() {
               showReport={showReport}
               showChanges={showChanges}
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch}}
+              data={{ branch: selectedBranch }}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -189,7 +216,7 @@ export default function AccessControl() {
               showReport={showReport}
               showChanges={showChanges}
               updateOptions={fetchOptions}
-              data={{ branch: selectedBranch}}
+              data={{ branch: selectedBranch }}
               setBranchNumber={setBranchNumber}
               setNetworkMask={setNetworkMask}
               setIpFixoDhcp={setIpFixoDhcp}
@@ -202,7 +229,12 @@ export default function AccessControl() {
               setPort={setPort}
               report={report}
               port={port}
-              setEmployeeBtn = {setEmployeeBtn}
+              setEmployeeBtn={setEmployeeBtn}
+              setInfosAndStatus={setInfosAndStatus}
+              infosAndStatus={infosAndStatus}
+              getInfosAndStatus={getInfosAndStatus}
+              getEvents={getEvents}
+              events={events}
             />
             : null}
         </Grid>

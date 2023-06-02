@@ -1,0 +1,9 @@
+/node_modules/
+/public/
+/src/
+/utils/
+.env
+.gitignore
+cmd_RA.htm
+index.html
+.git

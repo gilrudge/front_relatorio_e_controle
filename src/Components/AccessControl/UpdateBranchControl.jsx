@@ -15,8 +15,34 @@ import {
 } from '../../../utils/validate';
 import SuccessAlert from '../Alerts/SuccessAlert';
 
+import { Typography } from '@mui/material';
+
+import { styled } from '@mui/material/styles';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 
 export default function UpdateBranchControl(props) {
+
+  const [valueMain, setValueMain] = React.useState();
+  const [valueAccessibility, setValueAccessibility] = React.useState();
+  const [valueATM, setValueATM] = React.useState();
+  const [valueSteel, setValueSteel] = React.useState();
+
+  const handleChangeMain = (event) => {
+    setValueMain(event.target.value);
+  };
+  const handleChangeAccessibility = (event) => {
+    setValueAccessibility(event.target.value);
+  };
+  const handleChangeATM = (event) => {
+    setValueATM(event.target.value);
+  };
+  const handleChangeSteel = (event) => {
+    setValueSteel(event.target.value);
+  };
 
   const [updateAlert, setUpdateAlert] = React.useState(false);
   const showUpdateAlert = () => updateAlert ? setUpdateAlert(false) : setUpdateAlert(true);
@@ -264,7 +290,8 @@ export default function UpdateBranchControl(props) {
               helperText={errors?.mac_adress ? errors.mac_adress.message : null}
             />
           </Box>
-          <Box sx={{ m: 2, display: 'flex', justifyContent: 'end', gap: 2 }}>
+
+          <Box sx={{ m: 2, mt: 6, display: 'flex', justifyContent: 'end', gap: 2 }}>
             <Button variant="contained" type="submit"
             // onClick={() => {props.showChanges(), props.showReport()}}
             >Salvar Alterações</Button>

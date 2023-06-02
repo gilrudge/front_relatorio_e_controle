@@ -2,425 +2,643 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import Paper from '@mui/material/Paper';
 import Title from '../Title';
 import axios from 'axios';
 import {
   validateBankName, validateBranchNumber, validateBranchName,
   validateIp, validatePort, validateNetworkMask,
   validateDnsAdress, validateGateway, validateIpFixoDhcp,
-  validateMacAdress
+  validateMacAdress, validateHour, validateReconPort
 } from '../../../utils/validate';
 import { Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import SuccessAlert from '../Alerts/SuccessAlert';
 import DenyAlert from '../Alerts/DenyAlert';
-
+import StatusPort from '../Avatar/StatusPort';
 import { styled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 
-
-const Android12Switch = styled(Switch)(({ theme }) => ({
-  padding: 8,
-  '& .MuiSwitch-track': {
-    borderRadius: 22 / 2,
-    '&:before, &:after': {
-      content: '""',
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: 16,
-      height: 16,
+const IOSSwitch = styled((props) => (
+  <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} /> ))(({ theme }) => ({
+  width: 42,
+  height: 26,
+  padding: 0,
+  marginRight: -5,
+  '& .MuiSwitch-switchBase': {
+    padding: 0,
+    margin: 2,
+    transitionDuration: '300ms',
+    '&.Mui-checked': {
+      transform: 'translateX(16px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        backgroundColor: theme.palette.mode === 'dark' ? '#2ECA45' : '#65C466',
+        opacity: 1,
+        border: 0,
+      },
+      '&.Mui-disabled + .MuiSwitch-track': {
+        opacity: 0.5,
+      },
     },
-    '&:before': {
-      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
-        theme.palette.getContrastText(theme.palette.primary.main),
-      )}" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>')`,
-      left: 12,
+    '&.Mui-focusVisible .MuiSwitch-thumb': {
+      color: '#33cf4d',
+      border: '6px solid #fff',
     },
-    '&:after': {
-      backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
-        theme.palette.getContrastText(theme.palette.primary.main),
-      )}" d="M19,13H5V11H19V13Z" /></svg>')`,
-      right: 12,
+    '&.Mui-disabled .MuiSwitch-thumb': {
+      color:
+        theme.palette.mode === 'light'
+          ? theme.palette.grey[100]
+          : theme.palette.grey[600],
+    },
+    '&.Mui-disabled + .MuiSwitch-track': {
+      opacity: theme.palette.mode === 'light' ? 0.7 : 0.3,
     },
   },
   '& .MuiSwitch-thumb': {
-    boxShadow: 'none',
-    width: 16,
-    height: 16,
-    margin: 2,
+    boxSizing: 'border-box',
+    width: 22,
+    height: 22,
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 26 / 2,
+    backgroundColor: theme.palette.mode === 'light' ? '#E9E9EA' : '#39393D',
+    opacity: 1,
+    transition: theme.transitions.create(['background-color'], {
+      duration: 500,
+    }),
   },
 }));
 
 
-
-
 export default function CommandsControl(props) {
 
-  //ENABLE DOORS
+  //Endpoints comandos
+  const endPointCommand = `http://localhost:4002/enable-door/${props.data.end_ip}`
+  const endPointPort = `http://localhost:4002/open-door/${props.data.end_ip}`
+  const endPointHour = `http://localhost:4002/hour-door/${props.data.end_ip}`
+  const endPointFacial = `http://localhost:4002/facial-rec/${props.data.end_ip}`
+    
+  //Estado Habilita/Desabilita portas
+  const [enableMain, setEnableMain] = React.useState(props.infosAndStatus[0].H1_);
+  const [enableATM, setEnableATM] = React.useState(props.infosAndStatus[0].H3_);
+  const [enableSteel, setEnableSteel] = React.useState(props.infosAndStatus[0].H4_);
+  const [enableAccessibility, setEnableAccessibility] = React.useState(props.infosAndStatus[0].H2_);
+  const [enableFacial, setEnableFacial] = React.useState(props.infosAndStatus[0].HF_);
+  
+  // Estado horário de abertura portas
+  const [openHourMain, setOpenHourMain] = React.useState();
+  const [openHourAccessibility, setOpenHourAccessibility] = React.useState();
+  const [openHourATM, setOpenHourATM] = React.useState();
+  const [openHourSteel, setOpenHourSteel] = React.useState();
+  
+  //Estado horário fechamento portas
+  const [closeHourMain, setCloseHourMain] = React.useState();
+  const [closeHourAccessibility, setCloseHourAccessibility] = React.useState();
+  const [closeHourATM, setCloseHourATM] = React.useState();
+  const [closeHourSteel, setCloseHourSteel] = React.useState();
 
-  const [mainDoor, setMainDoor] = React.useState(false)
-
-  const activateDoor = () => {
-    mainDoor ? setMainDoor(true) : setMainDoor(false)
-    console.log('funcionando')
+  //Função habilita/desabilita portas
+  const changeEnableMain = (event) => {
+    setEnableMain(event.target.checked);
+    if(!enableMain){
+      axios.get(`${endPointCommand}/1/1`)
+    } else {
+      axios.get(`${endPointCommand}/1/0`)
+    }  
+  }; 
+  const changeEnableAccessibility = (event) => {
+    setEnableAccessibility(event.target.checked);
+    if(!enableAccessibility){
+      axios.get(`${endPointCommand}/2/1`)
+    } else {
+      axios.get(`${endPointCommand}/2/0`)
+    }  
+  };
+  const changeEnableATM = (event) => {
+    setEnableATM(event.target.checked);
+    if(!enableATM){
+      axios.get(`${endPointCommand}/3/1`)
+    } else {
+      axios.get(`${endPointCommand}/3/0`)
+    }  
+  };
+  const changeEnableSteel = (event) => {
+    setEnableSteel(event.target.checked);
+    if(!enableSteel){
+      axios.get(`${endPointCommand}/4/1`)
+    } else {
+      axios.get(`${endPointCommand}/4/0`)
+    }  
+  };
+  const changeEnableFacial = (event) => {
+    setEnableFacial(event.target.checked);
+    if(!enableFacial){
+      axios.get(`${endPointCommand}/F/1`)
+    } else {
+      axios.get(`${endPointCommand}/F/0`)
+    }  
   };
   
+  //Função horário abertura portas
+  const onSubmitOpenMain = async (data) => {
+    await axios.get(`${endPointHour}/CA/${openHourMain}`)
+    // handleClick()
+  };
+  const onSubmitOpenAccessibility = async (data) => {
+    await axios.get(`${endPointHour}/CA/${openHourAccessibility}`)
+    // handleClick()
+  };
+  const onSubmitOpenATM = async (data) => {
+    await axios.get(`${endPointHour}/CA/${openHourATM}`)
+    // handleClick()
+  };
+  const onSubmitOpenSteel = async (data) => {
+    await axios.get(`${endPointHour}/AA/${openHourSteel}`)
+    // handleClick()
+  };
+  
+  //Função horário fechamento portas
+  const onSubmitCloseMain = async (data) => {
+    await axios.get(`${endPointHour}/CF/${closeHourMain}`)
+    // handleClick()
+  };
+  const onSubmitCloseAccessibility = async (data) => {
+    await axios.get(`${endPointHour}/CF/${closeHourAccessibility}`)
+    // handleClick()
+  };
+  const onSubmitCloseATM = async (data) => {
+    await axios.get(`${endPointHour}/CF/${closeHourATM}`)
+    // handleClick()
+  };
+  const onSubmitCloseSteel = async (data) => {
+    await axios.get(`${endPointHour}/AF/${closeHourSteel}`)
+    // handleClick()
+  };
+  
+  //Função abrir portas
+  const openDoor = async (port) => {
+    await axios.get(`${endPointPort}/${port}`)
+  };
+
+  //Função fechar portas
+  const closeDoor = async (port) => {
+    await axios.get(`${endPointPort}/${port}`)
+  };
+
+  //Função parar portas
+  const stopDoor = async (port) => {
+    await axios.get(`${endPointPort}/${port}`)
+  };
+  
+  //Função porta reconhecimento facial
+  const facialRec = async (port) => {
+    await axios.get(`${endPointFacial}/${port}`)
+  };
   
   //ALERTS
-  const [successAlert, setSuccessAlert] = React.useState();
-  const [denyAlert, setDenyAlert] = React.useState();
-
-  const showSuccessAlert = () => successAlert ? setSuccessAlert(false) : setSuccessAlert(true);
-  const showdenyAlert = () => denyAlert ? setDenyAlert(false) : setDenyAlert(true);
-
-
+  // const [successAlert, setSuccessAlert] = React.useState();
+  // const [denyAlert, setDenyAlert] = React.useState();
+  
+  // const showSuccessAlert = () => successAlert ? setSuccessAlert(false) : setSuccessAlert(true);
+  // const showdenyAlert = () => denyAlert ? setDenyAlert(false) : setDenyAlert(true);
+   
   const { register, handleSubmit, resetField, formState: { errors } } = useForm({
     defaultValues: {
-
-      nome_banco: "",
-      numero_ag: "",
-      nome_ag: "",
-      end_ip: "",
-      porta: "",
-      masc_rede: "",
-      end_dns: "",
-      gateway: "",
-      ipfixo_dhcp: "",
-      mac_adress: ""
-
+      openHourATM:props.infosAndStatus[0].CA_,      
+      openHourSteel:props.infosAndStatus[0].AA_,      
     }
-  });
-  const handleClick = () => {
-    resetField("nome_banco");
-    resetField("numero_ag");
-    resetField("nome_ag");
-    resetField("end_ip");
-    resetField("porta");
-    resetField("masc_rede");
-    resetField("end_dns");
-    resetField("gateway");
-    resetField("ipfixo_dhcp");
-    resetField("mac_adress");
-  }
-
+  });  
   
-  const enableMainDoor = async () => {
-    
-    if(mainDoor){
-      await axios.get({
-        method: 'get',
-        url:'http://localhost:4002/enable-main-door'
-      })
-      console.log('Porta ativada')
-    }else{
-      console.log('porta desativada')
-    }    
-  }
-
-
-  const onSubmit = async (data) => {
-    const dataOptions = props.options.filter(item => item.numero_ag === data.numero_ag)
-
-    if (dataOptions.length === 0) {
-
-      await axios.post('http://localhost:4002', {
-
-        nome_banco: data.nome_banco,
-        numero_ag: data.numero_ag,
-        nome_ag: data.nome_ag,
-        end_ip: data.end_ip,
-        porta: data.porta,
-        masc_rede: data.masc_rede,
-        end_dns: data.end_dns,
-        gateway: data.gateway,
-        ipfixo_dhcp: data.ipfixo_dhcp,
-        mac_adress: data.mac_adress
-      })
-      props.updateOptions()
-      handleClick()
-      
-    } else {
-      setSuccessAlert(false)
-      showdenyAlert()
-      return
-    }
-    setDenyAlert(false)
-    showSuccessAlert()
-  }
-
-  React.useEffect(()=> {
-    enableMainDoor()
-  },[mainDoor])
-
   return (
     <>
-      <Box>
+      <Box sx={{ mb: 4 }} style={{ borderBottom: '1px solid #ddd' }}>
         <Title>Comandos</Title>
-      </Box>
-      <Box style={{display: 'flex', justifyContent: 'flex-end', margin: '0 20px 15px'}}>
-        <Button sx={{ width: '30ch', height: '5ch'}} variant="contained" >TIRA AVISO COERÇÃO</Button>
-      </Box>
-      <Box
-        m={1}
-        component="form"
-        noValidate
-        autoComplete="off"
-        onSubmit={handleSubmit(onSubmit)}
-        style={{borderBottom: '1px solid #ddd', marginBottom: '20px', paddingBottom: '20px'}}
-      >
-        <Box sx={{mb: 2}} style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Box style={{display: 'flex'}}>
-            <Typography sx={{mt: 1, mr: 1, width: '190px'}}>
-              Porta Principal
-            </Typography>
-            <FormControlLabel
-              control={
-              <Android12Switch
-                onChange={activateDoor}
-                
+        
+        <Box 
+          sx={{ mt: 4, mr: 1, mb: 4, ml: 1 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}
+          >
+          
+          {/* Start Porta Principal */}
+          <Box style={{ display: 'flex', flexDirection: 'column', gap: '30px', borderBottom: '1px solid #333', paddingBottom: '30px' }}>
+            <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '300px' }}>
+              <Typography sx={{ fontWeight: '700' }}>
+                Porta Principal
+              </Typography>
+              {props.infosAndStatus[0].S1_ ? <StatusPort color='red' texto='Fechada'></StatusPort> :
+                <StatusPort color='green' texto='Aberta'></StatusPort>}
+            </Box>
+            <Box style={{ display: 'flex', flexDirection: 'row', gap: '55px' }}>
+              <Box sx={{'& .MuiButton-root': {width: '10ch', height: '5ch', mr: 1} }}>
+                <Button onClick={()=>{openDoor(1)}} variant="contained">Abrir</Button>
+                <Button disabled variant="contained">Fechar</Button>
+                <Button disabled variant="contained">Parar</Button>
+              </Box>
+              <Box sx={{ 
+                gap: 2, 
+                '& .MuiTextField-root': {width: '20ch', mr: 1},
+                '& .MuiButton-root': {height: '5ch', mr: 1} }}
+                style={{ display: 'flex' }}>
+                <Box
+                  component='form'
+                  noValidate
+                  autoComplete="off"
+                >            
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Abertura"                
+                    type="text"
+                    {...register("openHourMain", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setOpenHourMain(e.target.value)}
+                    error={!!errors?.openHourMain}
+                    helperText={errors?.openHourMain ? errors.openHourMain.message : null}
+                  />
+                  <Button
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+                <Box
+                  component='form'
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Fechamento"                
+                    type="text"
+                    {...register("closeHourMain", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setCloseHourMain(e.target.value)}
+                    error={!!errors?.closeHourMain}
+                    helperText={errors?.closeHourMain ? errors.closeHourMain.message : null}
+                  />
+                  <Button
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+              </Box>
+              <Box sx={{display:  'flex', '& .MuiTypography-root': {mt: 1} }}>
+                <Typography sx={{ mr: 3 }}>
+                  Desabilitar
+                </Typography>
+                <FormControlLabel
+                  control={
+                  <IOSSwitch 
+                    checked={props.infosAndStatus[0].H1_}
+                    onChange={changeEnableMain}/>}
+                />
+                <Typography>
+                  Habilitar
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          {/* End Porta Principal */}
+
+          {/* Start Porta Acessibilidade */}
+          <Box style={{ display: 'flex', flexDirection: 'column', gap: '30px', borderBottom: '1px solid #333', paddingBottom: '30px' }}>
+            <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '300px' }}>
+              <Typography sx={{ fontWeight: '700' }}>
+                Porta Acessibilidade
+              </Typography>
+              {props.infosAndStatus[0].S2_ ? <StatusPort color='red' texto='Fechada'></StatusPort> :
+                <StatusPort color='green' texto='Aberta'></StatusPort>}
+            </Box>
+            <Box style={{ display: 'flex', flexDirection: 'row', gap: '55px' }}>
+              <Box sx={{'& .MuiButton-root': {width: '10ch', height: '5ch', mr: 1} }}>
+                <Button onClick={()=>{openDoor(2)}} variant="contained">Abrir</Button>
+                <Button disabled variant="contained">Fechar</Button>
+                <Button disabled variant="contained">Parar</Button>
+              </Box>
+              <Box sx={{ 
+                gap: 2, 
+                '& .MuiTextField-root': {width: '20ch', mr: 1},
+                '& .MuiButton-root': {height: '5ch', mr: 1} }}
+                style={{ display: 'flex' }}>
+                <Box
+                  component='form'
+                  noValidate
+                  autoComplete="off"
+                >            
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Abertura"                
+                    type="text"
+                    {...register("openHourAccessibility", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setOpenHourAccessibility(e.target.value)}
+                    error={!!errors?.openHourAccessibility}
+                    helperText={errors?.openHourAccessibility ? errors.openHourAccessibility.message : null}
+                  />
+                  <Button 
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+                <Box
+                  component='form'
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Fechamento"                
+                    type="text"
+                    {...register("closeHourAccessibility", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setCloseHourAccessibility(e.target.value)}
+                    error={!!errors?.closeHourAccessibility}
+                    helperText={errors?.closeHourAccessibility ? errors.closeHourAccessibility.message : null}
+                  />
+                  <Button 
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+              </Box>
+              <Box sx={{display:  'flex', '& .MuiTypography-root': {mt: 1} }}>
+                <Typography sx={{ mr: 3 }}>
+                  Desabilitar
+                </Typography>
+                <FormControlLabel
+                  control={
+                  <IOSSwitch 
+                      checked={props.infosAndStatus[0].H2_}
+                      onChange={changeEnableAccessibility} />
+                    }
+                />
+                <Typography>
+                  Habilitar
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+          {/* End Porta Acessibilidade */}
+          
+
+          {/* Start Porta Caixas */}
+          <Box style={{ display: 'flex', flexDirection: 'column', gap: '30px', borderBottom: '1px solid #333', paddingBottom: '30px' }}>
+            <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '300px' }}>
+              <Typography sx={{ fontWeight: '700' }}>
+                Porta Caixas
+              </Typography>
+              {props.infosAndStatus[0].S3_ ? <StatusPort color='red' texto='Fechada'></StatusPort> :
+                <StatusPort color='green' texto='Aberta'></StatusPort>}
+            </Box>
+            <Box style={{ display: 'flex', flexDirection: 'row', gap: '55px' }}>
+              <Box sx={{'& .MuiButton-root': {width: '10ch', height: '5ch', mr: 1} }}>
+                <Button onClick={()=>{openDoor(3)}}variant="contained">Abrir</Button>
+                <Button disabled variant="contained">Fechar</Button>
+                <Button disabled variant="contained">Parar</Button>
+              </Box>
+              <Box sx={{ 
+                gap: 2, 
+                '& .MuiTextField-root': {width: '20ch', mr: 1},
+                '& .MuiButton-root': {height: '5ch', mr: 1} }}
+                style={{ display: 'flex' }}>
+                <Box
+                  component='form'
+                  onSubmit={handleSubmit(onSubmitOpenATM)}
+                  noValidate
+                  autoComplete="off"
+                >            
+                  <TextField
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Abertura"
+                    type="text"
+                    {...register("openHourATM", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setOpenHourATM(e.target.value)}
+                    error={!!errors?.openHourATM}
+                    helperText={errors?.openHourATM ? errors.openHourATM.message : null}
+                  />
+                  <Button 
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+                <Box
+                  component='form'
+                  onSubmit={handleSubmit(onSubmitCloseATM)}
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Fechamento"                
+                    type="text"
+                    {...register("closeHourATM", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setCloseHourATM(e.target.value)}
+                    error={!!errors?.closeHourATM}
+                    helperText={errors?.closeHourATM ? errors.closeHourATM.message : null}
+                  />
+                  <Button 
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+              </Box>
+              <Box sx={{display:  'flex', '& .MuiTypography-root': {mt: 1} }}>
+                <Typography sx={{ mr: 3 }}>
+                  Desabilitar
+                </Typography>
+                <FormControlLabel
+                  control={
+                  <IOSSwitch 
+                      checked={props.infosAndStatus[0].H3_}
+                      onChange={changeEnableATM} />
+                    }
+                    />
+                <Typography>
+                  Habilitar
+                </Typography>
+              </Box>
+
+            </Box>
+          </Box>
+          {/* End Porta Caixas */}
+
+          {/* Start Porta Aço */}
+          <Box style={{ display: 'flex', flexDirection: 'column', gap: '30px', borderBottom: '1px solid #333', paddingBottom: '30px' }}>
+            <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '300px' }}>
+              <Typography sx={{ fontWeight: '700' }}>
+                Porta Aço
+              </Typography>
+              {props.infosAndStatus[0].S4_ ? <StatusPort color='red' texto='Fechada'></StatusPort> :
+                <StatusPort color='green' texto='Aberta'></StatusPort>}
+            </Box>
+            <Box style={{ display: 'flex', flexDirection: 'row', gap: '55px' }}>
+              <Box sx={{'& .MuiButton-root': {width: '10ch', height: '5ch', mr: 1} }}>
+                <Button onClick={()=>{openDoor(4)}} variant="contained">Abrir</Button>
+                <Button onClick={()=>{closeDoor(6)}} variant="contained">Fechar</Button>
+                <Button onClick={()=>{stopDoor(5)}} variant="contained">Parar</Button>
+              </Box>
+              <Box sx={{ 
+                gap: 2, 
+                '& .MuiTextField-root': {width: '20ch', mr: 1},
+                '& .MuiButton-root': {height: '5ch', mr: 1} }}
+                style={{ display: 'flex' }}>
+                <Box
+                  component='form'
+                  onSubmit={handleSubmit(onSubmitOpenSteel)}
+                  noValidate
+                  autoComplete="off"
+                >            
+                  <TextField
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Abertura"                
+                    type="text"
+                    {...register("openHourSteel", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setOpenHourSteel(e.target.value)}
+                    error={!!errors?.openHourSteel}
+                    helperText={errors?.openHourSteel ? errors.openHourSteel.message : null}
+                  />
+                  <Button 
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+                <Box
+                  component='form'
+                  onSubmit={handleSubmit(onSubmitCloseSteel)}
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    disabled
+                    size="small"
+                    variant="outlined"
+                    label="Hora de Fechamento"                
+                    type="text"
+                    {...register("closeHourSteel", {
+                      pattern: {
+                        value: validateHour,
+                        message: "Horário inválido"
+                      }
+                    })}
+                    onChange={(e) => setCloseHourSteel(e.target.value)}
+                    error={!!errors?.closeHourSteel}
+                    helperText={errors?.closeHourSteel ? errors.closeHourSteel.message : null}
+                  />
+                  <Button 
+                    disabled
+                    variant="outlined"
+                    type='submit'
+                  >Ok</Button>
+                </Box>
+              </Box>
+              <Box sx={{display:  'flex', '& .MuiTypography-root': {mt: 1} }}>
+                <Typography sx={{ mr: 3 }}>
+                  Desabilitar
+                </Typography>
+                <FormControlLabel
+                  control={
+                  <IOSSwitch 
+                      checked={props.infosAndStatus[0].H4_}
+                      onChange={changeEnableSteel} />
+                    }
+                />
+                <Typography>
+                  Habilitar
+                </Typography>
+              </Box>
+
+            </Box>
+          </Box>
+          {/* End Porta Aço */}
+
+          {/* Start Reconhecimento Facial */}
+          <Box style={{ display: 'flex', flexDirection: 'column', gap: '30px', paddingBottom: '30px' }}>
+            <Box style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '300px' }}>
+              <Typography sx={{ fontWeight: '700' }}>
+                Reconhecimento Facial
+              </Typography>
+                {/* <StatusPort color='green' texto={props.statusPorts["@PF_"]}></StatusPort> */}
+                <Typography>
+                  {props.infosAndStatus[0].PF_ === 1 ? "Principal" : "Acessibilidade"}
+                </Typography>
+            </Box>
+            <Box style={{ display: 'flex', flexDirection: 'row', gap: '250px' }}>
+              <Box sx={{'& .MuiButton-root': {width: '19.7ch', height: '5ch', mr: 1} }}>
+                <Button onClick={()=>{facialRec(1), props.getStatusPorts()}} variant="contained">Principal</Button>
+                <Button onClick={()=>{facialRec(2), props.getStatusPorts()}} variant="contained">Acessibilidade</Button>
+                <Button disabled onClick={()=>{facialRec(3), props.getStatusPorts()}} variant="contained">Caixas</Button>
+                <Button disabled onClick={()=>{facialRec(4), props.getStatusPorts()}} variant="contained">Aço</Button>
+              </Box>
               
-              />}
-              // label="Android 12"
-            />
+              <Box sx={{display:  'flex', '& .MuiTypography-root': {mt: 1} }}>
+                <Typography sx={{ mr: 3 }}>
+                  Desabilitar
+                </Typography>
+                <FormControlLabel
+                  control={
+                  <IOSSwitch 
+                      checked={props.infosAndStatus[0].HF_}
+                      onChange={changeEnableFacial} />
+                    }
+                />
+                <Typography>
+                  Habilitar
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-          <Box sx={{gap: 1.5}}>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Abertura"
-                type="text"
-                {...register("numero_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchNumber,
-                    message: "Número agência inválido"
-                  }
-                })}
-                error={!!errors?.numero_ag}
-                helperText={errors?.numero_ag ? errors.numero_ag.message : null}
-              />
-            <Button sx={{ width: '8ch', height: '5ch', mr: 1.5}} variant="outlined">Ok</Button>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Fechamento"
-                // autoComplete="Nome Agência"           
-                type="text"
-                {...register("nome_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchName,
-                    message: "Nome agência inválido"
-                  }
-                })}
-                error={!!errors?.nome_ag}
-                helperText={errors?.nome_ag ? errors.nome_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined" >Ok</Button>
-          </Box>
-        </Box>
+          {/* End Reconhecimento Facial */}
 
-        <Box sx={{mb: 2}} style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Box style={{display: 'flex'}}>
-            <Typography sx={{mt: 1, mr: 1, width: '190px'}}>
-              Porta Acessibilidade
-            </Typography>
-            <FormControlLabel
-              control={<Android12Switch defaultChecked />}
-              // label="Android 12"
-            />
-          </Box>
-          <Box sx={{gap: 1.5}}>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Abertura"
-                type="text"
-                {...register("numero_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchNumber,
-                    message: "Número agência inválido"
-                  }
-                })}
-                error={!!errors?.numero_ag}
-                helperText={errors?.numero_ag ? errors.numero_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined">Ok</Button>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Fechamento"
-                // autoComplete="Nome Agência"           
-                type="text"
-                {...register("nome_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchName,
-                    message: "Nome agência inválido"
-                  }
-                })}
-                error={!!errors?.nome_ag}
-                helperText={errors?.nome_ag ? errors.nome_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined" >Ok</Button>
-          </Box>
+          {/* {successAlert ? <SuccessAlert textSuccess={'Agência criada com Sucesso!'}></SuccessAlert> : null}
+          {denyAlert ? <DenyAlert textDeny={'Número de Agência já existe!'}></DenyAlert> : null} */}
         </Box>
-        <Box sx={{mb: 2}} style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Box style={{display: 'flex'}}>
-            <Typography sx={{mt: 1, mr: 1, width: '190px'}}>
-              Porta Caixas
-            </Typography>
-            <FormControlLabel
-              control={<Android12Switch defaultChecked />}
-              // label="Android 12"
-            />
-          </Box>
-          <Box sx={{gap: 1.5}}>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Abertura"
-                type="text"
-                {...register("numero_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchNumber,
-                    message: "Número agência inválido"
-                  }
-                })}
-                error={!!errors?.numero_ag}
-                helperText={errors?.numero_ag ? errors.numero_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined">Ok</Button>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Fechamento"
-                // autoComplete="Nome Agência"           
-                type="text"
-                {...register("nome_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchName,
-                    message: "Nome agência inválido"
-                  }
-                })}
-                error={!!errors?.nome_ag}
-                helperText={errors?.nome_ag ? errors.nome_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined" >Ok</Button>
-          </Box>
-        </Box>
-        <Box sx={{mb: 2}} style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Box style={{display: 'flex'}}>
-            <Typography sx={{mt: 1, mr: 1, width: '190px'}}>
-              Porta Aço
-            </Typography>
-            <FormControlLabel
-              control={<Android12Switch defaultChecked />}
-              // label="Android 12"
-            />
-          </Box>
-          <Box sx={{gap: 1.5}}>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Abertura"
-                type="text"
-                {...register("numero_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchNumber,
-                    message: "Número agência inválido"
-                  }
-                })}
-                error={!!errors?.numero_ag}
-                helperText={errors?.numero_ag ? errors.numero_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined">Ok</Button>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Fechamento"
-                // autoComplete="Nome Agência"           
-                type="text"
-                {...register("nome_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchName,
-                    message: "Nome agência inválido"
-                  }
-                })}
-                error={!!errors?.nome_ag}
-                helperText={errors?.nome_ag ? errors.nome_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined" >Ok</Button>
-          </Box>
-        </Box>
-        <Box sx={{mb: 2}} style={{display: 'flex', justifyContent: 'space-between'}}>
-          <Box style={{display: 'flex'}}>
-            <Typography sx={{mt: 1, mr: 1, width: '190px'}}>
-              Reconhecimento Facial
-            </Typography>
-            <FormControlLabel
-              control={<Android12Switch defaultChecked />}
-              // label="Android 12"
-            />
-          </Box>
-          <Box sx={{gap: 1.5}}>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Abertura"
-                type="text"
-                {...register("numero_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchNumber,
-                    message: "Número agência inválido"
-                  }
-                })}
-                error={!!errors?.numero_ag}
-                helperText={errors?.numero_ag ? errors.numero_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined">Ok</Button>
-            <TextField
-                sx={{ width: '14ch', mr: 1.5}}
-                size="small"
-                id="outlined"
-                label="Fechamento"
-                // autoComplete="Nome Agência"           
-                type="text"
-                {...register("nome_ag", {
-                  required: "Campo obrigatório",
-                  pattern: {
-                    value: validateBranchName,
-                    message: "Nome agência inválido"
-                  }
-                })}
-                error={!!errors?.nome_ag}
-                helperText={errors?.nome_ag ? errors.nome_ag.message : null}
-              />
-            <Button sx={{ width: '5ch', height: '5ch', mr: 1.5}} variant="outlined" >Ok</Button>
-          </Box>
-        </Box>
-
-        {successAlert ? <SuccessAlert textSuccess={'Agência criada com Sucesso!'}></SuccessAlert> : null}
-        {denyAlert ? <DenyAlert textDeny={'Número de Agência já existe!'}></DenyAlert> : null}
       </Box>
     </>
   );

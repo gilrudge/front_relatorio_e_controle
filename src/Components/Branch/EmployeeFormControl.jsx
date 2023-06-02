@@ -74,7 +74,7 @@ export default function EmployeeFormControl(props) {
       })
       props.updateOptions()
       handleClick()
-      
+
     } else {
       setSuccessAlert(false)
       showdenyAlert()
@@ -99,15 +99,15 @@ export default function EmployeeFormControl(props) {
         autoComplete="off"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Box sx={{mb: 2, gap: 1.5}} style={{display: 'flex', justifyContent: 'center'}}>
-          <Typography sx={{mt: 1}}>
+        <Box sx={{ mb: 2, gap: 1.5 }} style={{ display: 'flex', justifyContent: 'center' }}>
+          <Typography sx={{ mt: 1 }}>
             Colaborador 1
           </Typography>
           <TextField
-            sx={{mb: 3, width: '37ch', height: '3ch'}}
+            sx={{ mb: 3, width: '37ch', height: '3ch' }}
             size="small"
             id="outlined"
-            label="Nome"            
+            label="Nome"
             onChange={(e) => props.setBranchName(e.target.value)}
             required
             type="text"
@@ -122,10 +122,10 @@ export default function EmployeeFormControl(props) {
             helperText={errors?.nome_ag ? errors.nome_ag.message : null}
           />
           <TextField
-            sx={{mb: 3, width: '16ch', height: '3ch'}}
+            sx={{ mb: 3, width: '16ch', height: '3ch' }}
             size="small"
             id="outlined"
-            label='Matrícula'            
+            label='Matrícula'
             onChange={(e) => props.setIpAdress(e.target.value)}
             required
             type="text"
@@ -140,7 +140,7 @@ export default function EmployeeFormControl(props) {
             helperText={errors?.end_ip ? errors.end_ip.message : null}
           />
           <TextField
-            sx={{mb: 3, width: '16ch', height: '3ch'}}
+            sx={{ mb: 3, width: '16ch', height: '3ch' }}
             size="small"
             id="outlined-password-input"
             label="Senha"

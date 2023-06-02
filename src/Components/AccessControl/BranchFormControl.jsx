@@ -8,7 +8,12 @@ import Box from '@mui/material/Box';
 import * as React from 'react';
 import Title from '../Title';
 import axios from 'axios';
-
+import { Typography } from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';    
 import {
   validateBankName, validateBranchNumber, validateBranchName,
   validateIp, validatePort, validateNetworkMask,
@@ -17,7 +22,27 @@ import {
 } from '../../../utils/validate';
 
 export default function BranchFormControl(props) {
+      
+  const [valueMain, setValueMain] = React.useState();
+  const [valueAccessibility, setValueAccessibility] = React.useState();
+  const [valueATM, setValueATM] = React.useState();
+  const [valueSteel, setValueSteel] = React.useState();
 
+  const handleChangeMain = (event) => {
+    setValueMain(event.target.value);
+  };
+  const handleChangeAccessibility = (event) => {
+    setValueAccessibility(event.target.value);
+  };
+  const handleChangeATM = (event) => {
+    setValueATM(event.target.value);
+  };
+  const handleChangeSteel = (event) => {
+    setValueSteel(event.target.value);
+  };
+
+  console.log(`Principal: ${valueMain}, Acessibilidade: ${valueAccessibility}, Caixas: ${valueATM}, Aço: ${valueSteel}`)
+      
   const [successAlert, setSuccessAlert] = React.useState();
   const [denyAlert, setDenyAlert] = React.useState();
 
@@ -73,7 +98,7 @@ export default function BranchFormControl(props) {
       })
       props.updateOptions()
       handleClick()
-      
+
     } else {
       setSuccessAlert(false)
       showdenyAlert()
@@ -86,7 +111,7 @@ export default function BranchFormControl(props) {
 
 
   return (
-    <Paper sx={{ p: 2, mt: 3 }}>
+    <Paper sx={{ p: 2, mt: 1 }}>
       <Title>Cadastro de Agência</Title>
       <Box
         mt={3}
@@ -279,7 +304,76 @@ export default function BranchFormControl(props) {
             helperText={errors?.mac_adress ? errors.mac_adress.message : null}
           />
         </Box>
-        <Box sx={{ m: 2, display: 'flex', justifyContent: 'end', gap: 2 }}>
+        
+        {/* <Title>Sensores</Title>
+        <Typography variant="button" sx={{ m: 3 }}>
+          Considere todas as portas fechadas, nesse caso os sensores estão:
+        </Typography>
+        <Box style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
+          
+          <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> 
+            <FormControl required>
+              <FormLabel id="demo-controlled-radio-buttons-group">Porta Principal</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={valueMain}
+                onChange={handleChangeMain}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="Aberto" />
+                <FormControlLabel value="false" control={<Radio />} label="Fechado" />
+              </RadioGroup>
+            </FormControl>
+          </Box>
+          
+          <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> 
+            <FormControl required>
+              <FormLabel id="demo-controlled-radio-buttons-group">Porta Acessibilidade</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={valueAccessibility}
+                onChange={handleChangeAccessibility}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="Aberto" />
+                <FormControlLabel value="false" control={<Radio />} label="Fechado" />
+              </RadioGroup>
+            </FormControl>
+          </Box>
+          
+          <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> 
+            <FormControl required>
+              <FormLabel id="demo-controlled-radio-buttons-group">Porta Caixas</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={valueATM}
+                onChange={handleChangeATM}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="Aberto" />
+                <FormControlLabel value="false" control={<Radio />} label="Fechado" />
+              </RadioGroup>
+            </FormControl>
+          </Box>
+          
+          <Box style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}> 
+            <FormControl required>
+              <FormLabel id="demo-controlled-radio-buttons-group">Porta Aço</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={valueSteel}
+                onChange={handleChangeSteel}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="Aberto" />
+                <FormControlLabel value="false" control={<Radio />} label="Fechado" />
+              </RadioGroup>
+            </FormControl>
+          </Box>
+          
+                   
+        </Box> */}
+        <Box sx={{ m: 2, mt: 6, display: 'flex', justifyContent: 'end', gap: 2 }}>
           <Button variant="contained" onClick={handleClick}>Limpar</Button>
           <Button variant="contained" type="submit">Criar Agência</Button>
         </Box>

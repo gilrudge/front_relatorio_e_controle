@@ -46,7 +46,7 @@ export default function AccessReport() {
   const showForm = () => form ? setForm(false) : setForm(true);
 
 
-  const fetchOptions = async () => {    
+  const fetchOptions = async () => {
     const dbList = await axios.get(`http://localhost:4000`)
     setOptions(dbList.data)
   }

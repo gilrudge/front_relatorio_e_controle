@@ -14,39 +14,39 @@ import StatusIcon from '../Avatar/StatusIcon';
 export default function BranchInfoReport(props) {
 
   const [events, setEvents] = React.useState([]);
-  const [statusPort, setStatusPort] = React.useState([]);
+  const [statusPort, setStatusPort] = React.useState(false);
   const [downloadCsv, setDownloadCsv] = React.useState([]);
 
-  const automaticUpdate = async () => {    
+  const automaticUpdate = async () => {
     await getInfosBranch(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))
   };
-  
+
   const getInfosBranch = async (branchNumber, chosenDate) => {
     await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
-      .then((response) => { setEvents(response.data.relatorio)})
+      .then((response) => { setEvents(response.data.relatorio) })
   };
 
-  const getStatusBranch = async(ip) => {
+  const getStatusBranch = async (ip) => {
     await axios.get(`http://localhost:4000/status/${ip}`)
-               .then(response => {
-                response.data ? setStatusPort(true) : setStatusPort(false)
-               })
-               .catch(e => automaticUpdate())
+      .then(response => {
+        response.data ? setStatusPort(true) : setStatusPort(false)
+      })
+      .catch(e => automaticUpdate())
   }
-    
-  
+
+
   useEffect(() => {
 
     if (props.report) {
       automaticUpdate()
-      getStatusBranch(props.data.branch.end_ip)      
+      getStatusBranch(props.data.branch.end_ip)
     }
 
   }, [events]);
 
   useEffect(() => {
     const getCsvInfo = async (branchNumber, chosenDate) => {
-      
+
       await axios.get(`http://localhost:4000/export/${branchNumber}/?date=${chosenDate}`)
         .then((response) => { setDownloadCsv([response.data]) })
     }

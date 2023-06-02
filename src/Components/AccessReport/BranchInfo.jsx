@@ -25,7 +25,7 @@ export default function BranchInfo(props) {
   }
 
   const getInfosBranch = async (branchNumber, chosenDate) => {
-    
+
     await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
       .then((response) => { setEvents(response.data.relatorio) })
 
@@ -41,7 +41,7 @@ export default function BranchInfo(props) {
   const getStatusPort = async () => {
 
     await axios.get(`http://${props.data.branch.end_ip}/eventos?@MEV`)
-      .then((response) => { 
+      .then((response) => {
         setStatusPort(response.data)
         alert(statusPort)
         // if (response.data.name) {
@@ -49,13 +49,13 @@ export default function BranchInfo(props) {
         // }
         // else automaticUpdate()
       })
-         
+
   }
   getStatusPort()
 
   useEffect(() => {
     const getCsvInfo = async (branchNumber, chosenDate) => {
-      
+
       await axios.get(`http://localhost:4000/export/${branchNumber}/?date=${chosenDate}`)
         .then((response) => { setDownloadCsv([response.data]) })
     }
