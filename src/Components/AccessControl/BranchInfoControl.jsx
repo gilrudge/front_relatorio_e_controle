@@ -11,10 +11,10 @@ import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
 import StatusIcon from '../Avatar/StatusIcon';
 import CommandsControl from './CommandsControl';
+import { ipControl } from '../../../utils/variables';
 
 export default function BranchInfoControl(props) {
 
-  
   const [infosAndStatus, setInfosAndStatus] = React.useState([]);
   // const [downloadCsv, setDownloadCsv] = React.useState([]);
   const [statusPorts, setStatusPorts] = React.useState({});
@@ -22,7 +22,7 @@ export default function BranchInfoControl(props) {
 
 
   const getInfosAndStatus = async (branchNumber) => {
-    await axios.get(`http://localhost:4002/${branchNumber}/`)
+    await axios.get(`http://${ipControl}/${branchNumber}/`)
       .then((response) => { setInfosAndStatus(response.data.status) })
   }
 
@@ -31,7 +31,7 @@ export default function BranchInfoControl(props) {
   };
 
   const getStatusBranch = async (ip) => {
-    await axios.get(`http://localhost:4002/status-branch/${ip}`)
+    await axios.get(`http://${ipControl}/status-branch/${ip}`)
       .then(response => {
         response.data ? setStatusBranch(true) : setStatusBranch(false)
       })
@@ -61,7 +61,7 @@ export default function BranchInfoControl(props) {
       id: id,
       data_evt: evento.data_evt,
       hora_evt: evento.hora_evt,
-      usuario: evento.usuario,      
+      usuario: evento.usuario,
       comando: evento.comando,
       valor: evento.valor,
       mac_adress: evento.mac_adress
@@ -73,13 +73,13 @@ export default function BranchInfoControl(props) {
     return {
       id: id,
       nome_ag: props.data.branch.nome_ag,
-      numero_ag: props.data.branch.numero_ag,      
+      numero_ag: props.data.branch.numero_ag,
       data_evt: evento.data_evt,
       hora_evt: evento.hora_evt,
-      usuario:  evento.usuario,
+      usuario: evento.usuario,
       valor: evento.valor,
-      comando: evento.comando,      
-      mac_adress: props.data.branch.mac_adress,      
+      comando: evento.comando,
+      mac_adress: props.data.branch.mac_adress,
     }
   });
 
@@ -212,22 +212,22 @@ export default function BranchInfoControl(props) {
             </Box>
           </Box>
         </Box>
-        {infosAndStatus.length !== 0 ? 
-        <CommandsControl
-          getInfosAndStatus={getInfosAndStatus}
-          // getStatusPorts={getStatusPorts}
-          statusPorts={statusPorts}
-          infosAndStatus={infosAndStatus}
-          data={props.data.branch}
-        /> : null}
+        {infosAndStatus.length !== 0 ?
+          <CommandsControl
+            getInfosAndStatus={getInfosAndStatus}
+            // getStatusPorts={getStatusPorts}
+            statusPorts={statusPorts}
+            infosAndStatus={infosAndStatus}
+            data={props.data.branch}
+          /> : null}
         <Box sx={{ height: 450, width: '100%' }}>
           <Box
-            style={{display:'flex', justifyContent:'space-between' , marginBottom:'20px'}}
+            style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}
           >
             <Title>Controle de Acesso</Title>
             <Button
-            variant="contained"
-            onClick={()=>{props.getEvents(props.data.branch.numero_ag)}}
+              variant="contained"
+              onClick={() => { props.getEvents(props.data.branch.numero_ag) }}
             >
               Atualizar
             </Button>

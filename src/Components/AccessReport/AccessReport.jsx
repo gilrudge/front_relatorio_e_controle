@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import BranchInfoReport from './BranchInfoReport';
 import { Box } from '@mui/system';
 import { useForm } from 'react-hook-form';
+import { ipRelat } from '../../../utils/variables'
 
 export default function AccessReport() {
 
@@ -47,7 +48,7 @@ export default function AccessReport() {
 
 
   const fetchOptions = async () => {
-    const dbList = await axios.get(`http://localhost:4000`)
+    const dbList = await axios.get(`http://${ipRelat}`)
     setOptions(dbList.data)
   }
 

@@ -30,6 +30,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios'
+import { ipControl } from '../../utils/variables';
 
 function Copyright(props) {
 
@@ -130,60 +131,56 @@ BootstrapDialogTitle.propTypes = {
 };
 
 function DashboardContent() {
-  
+
   const [open, setOpen] = React.useState(true);
   const [report, setReport] = React.useState();
   const [coercao, setCoercao] = React.useState([]);
   const [controller, setController] = React.useState();
   const [openPopup, setOpenPopup] = React.useState(false);
   const [infosBranch, setInfosBranch] = React.useState([]);
-  
-  
-  
-  
+
+
+
+
   const alert = () => {
-      axios.get('http://localhost:4002/invasion')
-          .then((response)=>{           
-              if(response.data !== infosBranch){
-                setInfosBranch(response.data)   
-              }                
-      })  
-  };             
-  
-  React.useEffect(()=> {    
-    
+    axios.get(`http://${ipControl}/invasion`)
+      .then((response) => {
+        if (response.data !== infosBranch) {
+          setInfosBranch(response.data)
+        }
+      })
+  };
+
+  React.useEffect(() => {
+
     const teste = infosBranch.filter((item) => item.coercao)
-    
-    if(teste.length > 0){
+
+    if (teste.length > 0) {
       setOpenPopup(true)
-      setCoercao(teste[0])       
+      setCoercao(teste[0])
     }
-    else{      
-      alert()           
+    else {
+      alert()
     };
-    
-  },[infosBranch]);
+
+  }, [infosBranch]);
 
   // console.log(coercao)
 
-  const stopAlert = async (ip) => {    
-    await axios.get(`http://localhost:4002/stop-alert/${ip}`)
+  const stopAlert = async (ip) => {
+    await axios.get(`http://${ipControl}/stop-alert/${ip}`)
     setOpenPopup(false)
     setCoercao([])
-    setTimeout(alert, 10000) 
-  }; 
-  
-  //Start funções Popup
-  const handleClickOpen = () => {
-    setOpenPopup(true);
+    setTimeout(alert, 10000)
   };
+
   const handleClose = () => {
     setOpenPopup(false)
   };
+
   const toggleDrawer = () => {
-    setOpenPopup(!open)
+    setOpen(!open)
   };
-  //End funções Popup
 
   function showReport() {
     report ? setReport(false) : setReport(true);
@@ -203,7 +200,7 @@ function DashboardContent() {
 
   return (
 
-    <>      
+    <>
       <BootstrapDialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
@@ -218,8 +215,8 @@ function DashboardContent() {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button 
-          onClick={() => stopAlert(coercao.end_ip)}
+          <Button
+            onClick={() => stopAlert(coercao.end_ip)}
           >
             Desativar
           </Button>

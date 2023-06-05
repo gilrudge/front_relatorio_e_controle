@@ -8,21 +8,16 @@ import Box from '@mui/material/Box';
 import * as React from 'react';
 import Title from '../Title';
 import axios from 'axios';
-import { Typography } from '@mui/material';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';    
 import {
   validateBankName, validateBranchNumber, validateBranchName,
   validateIp, validatePort, validateNetworkMask,
   validateDnsAdress, validateGateway, validateIpFixoDhcp,
   validateMacAdress
 } from '../../../utils/validate';
+import { ipControl } from '../../../utils/variables';
 
 export default function BranchFormControl(props) {
-      
+
   const [valueMain, setValueMain] = React.useState();
   const [valueAccessibility, setValueAccessibility] = React.useState();
   const [valueATM, setValueATM] = React.useState();
@@ -42,7 +37,7 @@ export default function BranchFormControl(props) {
   };
 
   console.log(`Principal: ${valueMain}, Acessibilidade: ${valueAccessibility}, Caixas: ${valueATM}, Aço: ${valueSteel}`)
-      
+
   const [successAlert, setSuccessAlert] = React.useState();
   const [denyAlert, setDenyAlert] = React.useState();
 
@@ -83,7 +78,7 @@ export default function BranchFormControl(props) {
 
     if (dataOptions.length === 0) {
 
-      await axios.post('http://localhost:4002', {
+      await axios.post(`http://${ipControl}`, {
 
         nome_banco: data.nome_banco,
         numero_ag: data.numero_ag,
@@ -304,7 +299,7 @@ export default function BranchFormControl(props) {
             helperText={errors?.mac_adress ? errors.mac_adress.message : null}
           />
         </Box>
-        
+
         {/* <Title>Sensores</Title>
         <Typography variant="button" sx={{ m: 3 }}>
           Considere todas as portas fechadas, nesse caso os sensores estão:

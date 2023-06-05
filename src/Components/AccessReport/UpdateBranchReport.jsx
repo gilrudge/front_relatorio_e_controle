@@ -14,6 +14,7 @@ import {
   validateMacAdress
 } from '../../../utils/validate';
 import SuccessAlert from '../Alerts/SuccessAlert';
+import { ipRelat } from '../../../utils/variables'
 
 
 export default function UpdateBranchReport(props) {
@@ -53,7 +54,7 @@ export default function UpdateBranchReport(props) {
 
   const onSubmit = async (data) => {
 
-    await axios.put(`http://localhost:4000/${data.numero_ag}`,
+    await axios.put(`http://${ipRelat}/${data.numero_ag}`,
       {
         nome_banco: data.nome_banco,
         numero_ag: data.numero_ag,

@@ -15,6 +15,7 @@ import {
 import { useForm } from 'react-hook-form';
 import SuccessAlert from '../Alerts/SuccessAlert';
 import DenyAlert from '../Alerts/DenyAlert';
+import { ipRelat } from '../../../utils/variables'
 
 
 
@@ -63,7 +64,7 @@ export default function BranchFormReport(props) {
 
     if (dataOptionsBranch.length === 0 && dataOptionsIp.length === 0) {
 
-      await axios.post('http://localhost:4000', {
+      await axios.post(`http://${ipRelat}`, {
 
         nome_banco: data.nome_banco,
         numero_ag: data.numero_ag,

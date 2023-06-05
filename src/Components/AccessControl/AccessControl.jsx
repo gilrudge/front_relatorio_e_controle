@@ -17,6 +17,7 @@ import EmployeeFormControl from './EmployeeFormControl';
 import Autocomplete from '@mui/material/Autocomplete';
 import BranchInfoControl from './BranchInfoControl';
 import BranchFormControl from './BranchFormControl';
+import { ipControl } from '../../../utils/variables';
 
 
 export default function AccessControl() {
@@ -51,19 +52,19 @@ export default function AccessControl() {
   const showForm = () => form ? setForm(false) : setForm(true);
 
   const fetchOptions = async () => {
-    const dbList = await axios.get(`http://localhost:4002`)
+    const dbList = await axios.get(`http://${ipControl}`)
     setOptions(dbList.data)
   }
 
   const getInfosAndStatus = async (branchNumber) => {
-    await axios.get(`http://localhost:4002/${branchNumber}/`)
-      .then((response) => {setInfosAndStatus(response.data) })
+    await axios.get(`http://${ipControl}/${branchNumber}/`)
+      .then((response) => { setInfosAndStatus(response.data) })
   }
 
   const getEvents = async (branchNumber) => {
-    await axios.get(`http://localhost:4002/eventos-agencia/${branchNumber}`)
-               .then(response => setEvents(response.data.controle))
-               .catch(e => console.log(e))
+    await axios.get(`http://${ipControl}/eventos-agencia/${branchNumber}`)
+      .then(response => setEvents(response.data.controle))
+      .catch(e => console.log(e))
   };
 
   useEffect(() => {
@@ -87,31 +88,31 @@ export default function AccessControl() {
                   sx={{ display: 'flex' }}
                 >
                   {!employeeBtn ?
-                  <Autocomplete
-                    onChange={(_event, value) => setSelectedBranch(value)}
-                    disablePortal
-                    id="combo-box-demo"
-                    size="small"
-                    options={options}
-                    getOptionLabel={(option) => `${option.numero_ag} | ${option.nome_ag}`}
-                    isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
-                    sx={{ m: 1, width: 300 }}
-                    renderInput={(params) => <TextField {...params} required label="Agência" />}
-                    value={selectedBranch}
-                  /> :
-                  <Autocomplete
-                    disabled
-                    onChange={(_event, value) => setSelectedBranch(value)}
-                    disablePortal
-                    id="combo-box-demo"
-                    size="small"
-                    options={options}
-                    getOptionLabel={(option) => `${option.numero_ag} | ${option.nome_ag}`}
-                    isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
-                    sx={{ m: 1, width: 300 }}
-                    renderInput={(params) => <TextField {...params} required label="Agência" />}
-                    value={selectedBranch}
-                  /> }
+                    <Autocomplete
+                      onChange={(_event, value) => setSelectedBranch(value)}
+                      disablePortal
+                      id="combo-box-demo"
+                      size="small"
+                      options={options}
+                      getOptionLabel={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                      isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                      sx={{ m: 1, width: 300 }}
+                      renderInput={(params) => <TextField {...params} required label="Agência" />}
+                      value={selectedBranch}
+                    /> :
+                    <Autocomplete
+                      disabled
+                      onChange={(_event, value) => setSelectedBranch(value)}
+                      disablePortal
+                      id="combo-box-demo"
+                      size="small"
+                      options={options}
+                      getOptionLabel={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                      isOptionEqualToValue={(option) => `${option.numero_ag} | ${option.nome_ag}`}
+                      sx={{ m: 1, width: 300 }}
+                      renderInput={(params) => <TextField {...params} required label="Agência" />}
+                      value={selectedBranch}
+                    />}
                   {/* <TextField sx={{ m: 1, width: 200 }}
                     required
                     type="date"
@@ -126,7 +127,7 @@ export default function AccessControl() {
                       color="primary"
                       size="large"
                       type="submit"
-                      onClick={() => { setReport(true), setForm(false), getInfosAndStatus(selectedBranch.numero_ag), getEvents(selectedBranch.numero_ag)}}>
+                      onClick={() => { setReport(true), setForm(false), getInfosAndStatus(selectedBranch.numero_ag), getEvents(selectedBranch.numero_ag) }}>
                       <SearchIcon fontSize="inherit" />
                     </IconButton>
                     :

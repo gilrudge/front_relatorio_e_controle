@@ -14,15 +14,7 @@ import {
   validateMacAdress
 } from '../../../utils/validate';
 import SuccessAlert from '../Alerts/SuccessAlert';
-
-import { Typography } from '@mui/material';
-
-import { styled } from '@mui/material/styles';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
+import { ipControl } from '../../../utils/variables';
 
 export default function UpdateBranchControl(props) {
 
@@ -79,7 +71,7 @@ export default function UpdateBranchControl(props) {
 
   const onSubmit = async (data) => {
 
-    await axios.put(`http://localhost:4002/${data.numero_ag}`,
+    await axios.put(`http://${ipControl}/${data.numero_ag}`,
       {
         nome_banco: data.nome_banco,
         numero_ag: data.numero_ag,

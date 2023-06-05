@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import uuid from 'react-uuid';
 import { CSVLink } from "react-csv";
 import StatusIcon from '../Avatar/StatusIcon';
+import { ipRelat } from '../../../utils/variables'
 
 export default function BranchInfo(props) {
 
@@ -26,7 +27,7 @@ export default function BranchInfo(props) {
 
   const getInfosBranch = async (branchNumber, chosenDate) => {
 
-    await axios.get(`http://localhost:4000/${branchNumber}/?date=${chosenDate}`)
+    await axios.get(`http://${ipRelat}/${branchNumber}/?date=${chosenDate}`)
       .then((response) => { setEvents(response.data.relatorio) })
 
   }
@@ -56,7 +57,7 @@ export default function BranchInfo(props) {
   useEffect(() => {
     const getCsvInfo = async (branchNumber, chosenDate) => {
 
-      await axios.get(`http://localhost:4000/export/${branchNumber}/?date=${chosenDate}`)
+      await axios.get(`http://${ipRelat}/export/${branchNumber}/?date=${chosenDate}`)
         .then((response) => { setDownloadCsv([response.data]) })
     }
     getCsvInfo(props.data.branch.numero_ag, (props.data.date).split("-").reverse().join("/"))
